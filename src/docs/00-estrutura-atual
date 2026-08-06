@@ -1,0 +1,59 @@
+src
+├── App.css
+├── App.tsx
+├── app
+│   ├── providers
+│   │   └── AppProviders.tsx
+│   └── router
+│       └── index.tsx
+├── assets
+│   ├── hero.png
+│   ├── react.svg
+│   └── vite.svg
+├── auth
+│   ├── api
+│   ├── hooks
+│   │   └── usePermission.ts
+│   ├── pages
+│   │   └── LoginPage.tsx
+│   ├── services
+│   │   └── authService.ts
+│   └── store
+│       ├── authStorage.ts
+│       └── authStore.ts
+├── components
+│   ├── common
+│   ├── forms
+│   └── layout
+│       ├── Header.tsx
+│       ├── MainLayout.tsx
+│       └── Sidebar.tsx
+├── docs
+│   ├── 00-estrutura-atual
+│   ├── 01-roadmap-front.md
+│   ├── 02-decisao-arquitetural-roadmap-frontend.md
+│   ├── 03-sprints.md
+│   └── 04-regras-para-sprints.md
+├── guards
+│   ├── AuthGuard.tsx
+│   └── PermissionGuard.tsx
+├── hooks
+├── index.css
+├── main.tsx
+├── modules
+│   ├── categorias
+│   ├── dashboard
+│   │   └── pages
+│   │       └── DashboardPage.tsx
+│   ├── perfis
+│   ├── pessoas
+│   ├── produtos
+│   └── usuarios
+├── services
+│   ├── api.ts
+│   └── queryClient.ts
+├── styles
+│   ├── ThemeProvider.tsx
+│   └── theme.ts
+├── types
+└── utils

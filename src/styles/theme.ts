@@ -1,23 +1,91 @@
 import { createTheme } from '@mui/material/styles';
 
+import { colors, typography, radius } from './';
+
 export const theme = createTheme({
   palette: {
     mode: 'dark',
 
-    primary: {
-      main: '#1976d2',
-    },
+    primary: colors.primary,
+    secondary: colors.secondary,
 
-    secondary: {
-      main: '#9c27b0',
-    },
+    background: colors.background,
+    text: colors.text,
+
+    success: colors.success,
+    warning: colors.warning,
+    error: colors.error,
+
+    divider: colors.divider,
   },
 
-  typography: {
-    fontFamily: ['Roboto', 'Arial', 'sans-serif'].join(','),
-  },
+  typography,
 
   shape: {
-    borderRadius: 8,
+    borderRadius: radius.md,
+  },
+
+  components: {
+    MuiButton: {
+      defaultProps: {
+        variant: 'contained',
+        disableElevation: true,
+      },
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          fontWeight: 600,
+          borderRadius: radius.md,
+          minHeight: 40,
+          paddingInline: 20,
+        },
+      },
+    },
+
+    MuiTextField: {
+      defaultProps: {
+        variant: 'outlined',
+        fullWidth: true,
+        size: 'small',
+      },
+    },
+
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: radius.md,
+        },
+      },
+    },
+
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: radius.lg,
+        },
+      },
+    },
+
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          borderRadius: radius.lg,
+        },
+      },
+    },
+
+    MuiAlert: {
+      defaultProps: {
+        variant: 'filled',
+      },
+    },
+
+    MuiTableCell: {
+      styleOverrides: {
+        head: {
+          fontWeight: 700,
+        },
+      },
+    },
   },
 });

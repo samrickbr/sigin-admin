@@ -11,7 +11,7 @@ interface AuthState {
   token: string | null;
   usuario: UsuarioAutenticado | null;
 
-  setAuth: (token: string, usuario: UsuarioAutenticado) => void;
+  setAuth: (token: string, usuario: UsuarioAutenticado | null) => void;
 
   clearAuth: () => void;
 }

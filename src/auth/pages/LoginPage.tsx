@@ -27,10 +27,7 @@ export default function LoginPage() {
         senha,
       });
 
-      setAuth(
-  response.token,
-  null
-);
+      setAuth(response.token, null);
 
       navigate('/');
     } catch {

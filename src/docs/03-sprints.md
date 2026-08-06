@@ -184,20 +184,23 @@ Concluída.
 
 # Backlog Inicial
 
-## Sprint F02
+---
 
-Design System
+## Sprint F02 — Design System + Componentes Base
 
-* Tema global.
-* Tipografia.
-* Paleta de cores.
-* Componentes base.
-* Botões.
-* Inputs.
-* Cards.
-* Tabelas.
-* Modais.
-* Formulários.
+Status: Em andamento
+
+Entregas:
+
+- Theme consolidado
+- Tokens visuais
+- Component overrides MUI
+- Loading
+- EmptyState
+- Feedback
+- ConfirmDialog
+- DataTable
+- FormError
 
 ---
 
