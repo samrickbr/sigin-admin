@@ -204,14 +204,78 @@ Entregas:
 
 ---
 
-## Sprint F03
+---
 
-Dashboard Administrativo
+Sprint F03 — Dashboard Administrativo
 
-* Indicadores.
-* Cards.
-* Atalhos.
-* Layout inicial.
+Status: Concluída
+
+Objetivo:
+
+Implementar o Dashboard Administrativo inicial do SIGIN, integrando o Design System existente, criando a estrutura visual do painel e preparando a camada de consumo de indicadores.
+
+---
+
+Entregas Realizadas
+
+Dashboard
+
+- Página Dashboard Administrativo criada.
+- Layout inicial implementado.
+- Cards de indicadores criados.
+- Componente reutilizável `DashboardIndicatorCard` criado.
+
+Dados
+
+- Estrutura `dashboardService` criada.
+- Hook `useDashboard` implementado utilizando React Query.
+- Dados temporários isolados na camada de serviço.
+- Preparação realizada para futura integração com API oficial do Core.
+
+Estados da Interface
+
+- Loading integrado utilizando componente existente do Design System.
+- EmptyState integrado para ausência de dados.
+- Feedback integrado para erros de carregamento.
+
+Integração
+
+- Fluxo `/` → `/login` validado.
+- Login → `/dashboard` validado.
+- Dashboard renderizado dentro do `MainLayout`.
+- AuthGuard validado.
+
+---
+
+Validações Realizadas
+
+Build:
+
+```
+
+npm run build
+
+---
+
+Resultado:
+
+Build de produção aprovado.
+
+Lint:
+
+Identificados erros existentes fora do escopo da Sprint:
+auth/hooks/usePermission.ts
+guards/PermissionGuard.tsx
+
+Não foram alterados durante a Sprint.
+
+Decisões e Observações
+
+Não existe endpoint de Dashboard/KPIs disponível no Core atualmente.
+O Dashboard utiliza dados temporários encapsulados no service.
+A substituição futura pelo endpoint oficial deverá ocorrer somente na camada de serviço.
+O login atual retorna somente JWT.
+A exibição do usuário autenticado no Header depende de endpoint futuro de sessão (/auth/me ou equivalente).
 
 ---
 

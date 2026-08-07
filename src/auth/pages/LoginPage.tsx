@@ -29,7 +29,7 @@ export default function LoginPage() {
 
       setAuth(response.token, null);
 
-      navigate('/');
+      navigate('/dashboard');
     } catch {
       setErro('Usuário ou senha inválidos');
     } finally {

@@ -22,7 +22,99 @@ src
 │       ├── authStorage.ts
 │       └── authStore.ts
 ├── components
-│   ├── common
+│   ├── commonsrc
+              ├── App.css
+              ├── App.tsx
+              ├── app
+              │   ├── providers
+              │   │   └── AppProviders.tsx
+              │   └── router
+              │       └── index.tsx
+              ├── assets
+              │   ├── hero.png
+              │   ├── react.svg
+              │   └── vite.svg
+              ├── auth
+              │   ├── api
+              │   ├── hooks
+              │   │   └── usePermission.ts
+              │   ├── pages
+              │   │   └── LoginPage.tsx
+              │   ├── services
+              │   │   └── authService.ts
+              │   └── store
+              │       ├── authStorage.ts
+              │       └── authStore.ts
+              ├── components
+              │   ├── common
+              │   │   ├── ConfirmDialog
+              │   │   │   ├── ConfirmDialog.tsx
+              │   │   │   └── index.ts
+              │   │   ├── EmptyState
+              │   │   │   ├── EmptyState.tsx
+              │   │   │   └── index.ts
+              │   │   ├── Feedback
+              │   │   │   ├── Feedback.tsx
+              │   │   │   └── index.ts
+              │   │   ├── Loading
+              │   │   │   ├── Loading.tsx
+              │   │   │   └── index.ts
+              │   │   └── index.ts
+              │   ├── forms
+              │   │   ├── FormError
+              │   │   │   ├── FormError.tsx
+              │   │   │   └── index.ts
+              │   │   └── index.ts
+              │   ├── layout
+              │   │   ├── Header.tsx
+              │   │   ├── MainLayout.tsx
+              │   │   └── Sidebar.tsx
+              │   └── table
+              │       ├── DataTable
+              │       │   ├── DataTable.tsx
+              │       │   └── index.ts
+              │       └── index.ts
+              ├── docs
+              │   ├── 00-estrutura-atual
+              │   ├── 01-roadmap-front.md
+              │   ├── 02-decisao-arquitetural-roadmap-frontend.md
+              │   ├── 03-sprints.md
+              │   ├── 04-regras-para-sprints.md
+              │   ├── 05-design-system.md
+              │   └── identidade-visual
+              │       ├── Folder Inova.jpeg
+              │       ├── Logo Inova.jpeg
+              │       ├── cartão Inova V2.png
+              │       └── cartão Inova.png
+              ├── guards
+              │   ├── AuthGuard.tsx
+              │   └── PermissionGuard.tsx
+              ├── hooks
+              ├── index.css
+              ├── main.tsx
+              ├── modules
+              │   ├── categorias
+              │   ├── dashboard
+              │   │   └── pages
+              │   │       └── DashboardPage.tsx
+              │   ├── perfis
+              │   ├── pessoas
+              │   ├── produtos
+              │   └── usuarios
+              ├── services
+              │   ├── api.ts
+              │   └── queryClient.ts
+              ├── styles
+              │   ├── ThemeProvider.tsx
+              │   ├── colors.ts
+              │   ├── index.ts
+              │   ├── radius.ts
+              │   ├── shadows.ts
+              │   ├── spacing.ts
+              │   ├── theme.ts
+              │   └── typography.ts
+              ├── types
+              └── utils
 │   ├── forms
 │   └── layout
 │       ├── Header.tsx
