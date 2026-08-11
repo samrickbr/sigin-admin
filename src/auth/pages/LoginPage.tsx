@@ -3,13 +3,11 @@ import { useNavigate } from 'react-router-dom';
 
 import { Button, TextField, Box, Paper, Typography } from '@mui/material';
 
-import { login } from '../services/authService';
 import { useAuthStore } from '../store/authStore';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const login = useAuthStore((state) => state.login);
 
   const [loginUsuario, setLoginUsuario] = useState('');
   const [senha, setSenha] = useState('');
@@ -22,12 +20,10 @@ export default function LoginPage() {
       setLoading(true);
       setErro('');
 
-      const response = await login({
+      await login({
         login: loginUsuario,
         senha,
       });
-
-      setAuth(response.token, null);
 
       navigate('/dashboard');
     } catch {

@@ -1,20 +1,14 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAuthStore } from '../auth/store/authStore';
+import { usePermission } from '../auth/hooks/usePermission';
 
 interface Props {
   permissao: string;
 }
 
 export function PermissionGuard({ permissao }: Props) {
-  const usuario = useAuthStore((state) => state.usuario);
+  const { hasPermission } = usePermission();
 
-  const possuiPermissao =
-    usuario &&
-    'permissoes' in usuario &&
-    Array.isArray((usuario as any).permissoes) &&
-    (usuario as any).permissoes.includes(permissao);
-
-  if (!possuiPermissao) {
+  if (!hasPermission(permissao)) {
     return <Navigate to="/403" replace />;
   }
 

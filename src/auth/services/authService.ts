@@ -1,22 +1,22 @@
-import api from "../../services/api";
+import api from '../../services/api';
+import type { AuthMeResponse } from '../types/authMe';
 
-interface LoginRequest {
+export interface LoginRequest {
   login: string;
   senha: string;
 }
 
-interface LoginResponse {
+export interface LoginResponse {
   tipo: string;
   token: string;
 }
 
-export async function login(
-  data: LoginRequest
-): Promise<LoginResponse> {
-  const response = await api.post<LoginResponse>(
-    "/auth/login",
-    data
-  );
+export async function login(data: LoginRequest): Promise<LoginResponse> {
+  const response = await api.post<LoginResponse>('/auth/login', data);
+  return response.data;
+}
 
+export async function me(): Promise<AuthMeResponse> {
+  const response = await api.get<AuthMeResponse>('/auth/me');
   return response.data;
 }

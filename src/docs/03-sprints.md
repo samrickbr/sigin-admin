@@ -1,5 +1,3 @@
-# docs/03-sprints.md
-
 # Sprints — Frontend Administrativo do SIGIN
 
 Este documento registra o planejamento, andamento e histórico das Sprints do Frontend Administrativo do SIGIN.
@@ -119,19 +117,6 @@ Não contempla implementação de regras de negócio.
 
 ---
 
-## Critérios de Conclusão
-
-Ao término da Sprint deverão existir:
-
-* Projeto estruturado.
-* Navegação funcional.
-* Layout administrativo.
-* Login integrado ao Core.
-* Proteção de rotas.
-* Base para os módulos administrativos.
-
----
-
 ## Status
 
 Concluída.
@@ -153,7 +138,6 @@ Concluída.
 * Header criado.
 * Sidebar criado.
 * Área de conteúdo integrada.
-* Estrutura preparada para refinamentos visuais futuros.
 
 ### Autenticação
 
@@ -173,157 +157,383 @@ Concluída.
 
 ---
 
-## Decisões e Observações
+# Sprint F02 — Design System + Componentes Base
 
-* O Frontend segue consumindo exclusivamente as APIs disponibilizadas pelo Core.
-* O controle granular de permissões foi preparado através do PermissionGuard, porém depende da exposição de permissões pelo Core.
-* O Core atualmente retorna o JWT no login. A evolução futura poderá utilizar endpoint de sessão (`/auth/me`) ou retorno de permissões no login.
-* Refinamentos visuais do Layout (ícones, sidebar recolhível, ajustes de espaçamento e responsividade) foram postergados para uma sprint específica de Design System.
+## Status
 
----
+Concluída.
 
-# Backlog Inicial
+## Entregas
 
----
-
-## Sprint F02 — Design System + Componentes Base
-
-Status: Em andamento
-
-Entregas:
-
-- Theme consolidado
-- Tokens visuais
-- Component overrides MUI
-- Loading
-- EmptyState
-- Feedback
-- ConfirmDialog
-- DataTable
-- FormError
+* Theme consolidado.
+* Tokens visuais.
+* Component overrides MUI.
+* Loading.
+* EmptyState.
+* Feedback.
+* ConfirmDialog.
+* DataTable.
+* FormError.
 
 ---
 
----
+# Sprint F03 — Dashboard Administrativo
 
-Sprint F03 — Dashboard Administrativo
+## Status
 
-Status: Concluída
+Concluída.
 
-Objetivo:
+## Objetivo
 
 Implementar o Dashboard Administrativo inicial do SIGIN, integrando o Design System existente, criando a estrutura visual do painel e preparando a camada de consumo de indicadores.
 
 ---
 
-Entregas Realizadas
+## Entregas Realizadas
 
-Dashboard
+### Dashboard
 
-- Página Dashboard Administrativo criada.
-- Layout inicial implementado.
-- Cards de indicadores criados.
-- Componente reutilizável `DashboardIndicatorCard` criado.
+* Página Dashboard Administrativo criada.
+* Layout inicial implementado.
+* Cards de indicadores criados.
+* Componente reutilizável `DashboardIndicatorCard` criado.
 
-Dados
+### Dados
 
-- Estrutura `dashboardService` criada.
-- Hook `useDashboard` implementado utilizando React Query.
-- Dados temporários isolados na camada de serviço.
-- Preparação realizada para futura integração com API oficial do Core.
+* Estrutura `dashboardService` criada.
+* Hook `useDashboard` implementado utilizando React Query.
+* Dados temporários isolados na camada de serviço.
+* Preparação realizada para futura integração com API oficial do Core.
 
-Estados da Interface
+### Estados da Interface
 
-- Loading integrado utilizando componente existente do Design System.
-- EmptyState integrado para ausência de dados.
-- Feedback integrado para erros de carregamento.
+* Loading integrado utilizando componente existente do Design System.
+* EmptyState integrado para ausência de dados.
+* Feedback integrado para erros de carregamento.
 
-Integração
+### Integração
 
-- Fluxo `/` → `/login` validado.
-- Login → `/dashboard` validado.
-- Dashboard renderizado dentro do `MainLayout`.
-- AuthGuard validado.
+* Fluxo `/` → `/login` validado.
+* Login → `/dashboard` validado.
+* Dashboard renderizado dentro do `MainLayout`.
+* AuthGuard validado.
 
 ---
 
-Validações Realizadas
+## Validações Realizadas
 
-Build:
+### Build
 
-```
-
+```text
 npm run build
-
----
+```
 
 Resultado:
 
 Build de produção aprovado.
 
-Lint:
+### Lint
 
-Identificados erros existentes fora do escopo da Sprint:
-auth/hooks/usePermission.ts
-guards/PermissionGuard.tsx
+Foram identificados erros existentes em:
 
-Não foram alterados durante a Sprint.
+* `auth/hooks/usePermission.ts`
+* `guards/PermissionGuard.tsx`
 
-Decisões e Observações
+Esses pontos foram posteriormente tratados durante a Sprint F04.
+
+---
+
+## Decisões e Observações
 
 Não existe endpoint de Dashboard/KPIs disponível no Core atualmente.
+
 O Dashboard utiliza dados temporários encapsulados no service.
-A substituição futura pelo endpoint oficial deverá ocorrer somente na camada de serviço.
-O login atual retorna somente JWT.
-A exibição do usuário autenticado no Header depende de endpoint futuro de sessão (/auth/me ou equivalente).
+
+A substituição futura pelos endpoints oficiais deverá ocorrer somente na camada de serviço.
+
+A Sprint F03 deixou como evolução futura o carregamento da identidade autenticada através de um contrato de sessão disponibilizado pelo Core.
 
 ---
 
-## Sprint F04
+# Sprint F04 — IAM e Autenticação do Front
 
-Módulo Pessoas
+## Objetivo
 
-* Listagem.
-* Cadastro.
-* Edição.
-* Consulta.
+Consolidar a autenticação do Frontend Administrativo utilizando a infraestrutura existente da Sprint F01/F03 e integrar o contrato real `GET /auth/me` disponibilizado pelo SIGIN Core.
 
----
-
-## Sprint F05
-
-Módulo Produtos
-
-* Listagem.
-* Cadastro.
-* Categorias.
-* ProdutoVenda.
+A Sprint não cria um novo mecanismo de autenticação.
 
 ---
 
-## Sprint F06
+## Escopo
 
-IAM Administrativo
+### Identidade Autenticada
 
-* Usuários.
-* Perfis.
-* Permissões.
+* Consumir `GET /auth/me`.
+* Carregar usuário autenticado.
+* Carregar Pessoa vinculada.
+* Carregar perfis.
+* Carregar permissões.
+
+### Sessão
+
+* Persistir o JWT utilizando a infraestrutura existente.
+* Restaurar a identidade autenticada após recarregamento da aplicação.
+* Encerrar a sessão quando a identidade não puder ser validada.
+
+### Permissões
+
+* Utilizar as permissões reais retornadas pelo Core.
+* Integrar as permissões ao mecanismo existente de guards.
+* Consolidar a verificação realizada pelo `usePermission`.
+
+### Integração
+
+* Manter o `AuthStore` existente.
+* Manter o `AuthGuard` existente.
+* Manter o `PermissionGuard` existente.
+* Utilizar o cliente Axios existente.
+* Não criar mecanismos paralelos.
 
 ---
 
-## Sprint F07
+## Status
 
-Configurações
+Concluída.
 
-* Configurações gerais.
-* Preferências.
-* Parâmetros.
+---
+
+## Entregas Realizadas
+
+### Contrato `/auth/me`
+
+Criada a tipagem:
+
+```text
+src/auth/types/authMe.ts
+```
+
+Representando o contrato real disponibilizado pelo Core:
+
+* `AuthMeResponse`
+* `PessoaResponse`
+* `PerfilResponse`
+* `PermissaoResponse`
+
+### Serviço
+
+Atualizado:
+
+```text
+src/auth/services/authService.ts
+```
+
+Com consumo de:
+
+```text
+GET /auth/me
+```
+
+### Auth Store
+
+Atualizado:
+
+```text
+src/auth/store/authStore.ts
+```
+
+Com:
+
+* identidade autenticada;
+* `fetchMe()`;
+* hidratação após login;
+* restauração da sessão;
+* persistência isolada do JWT.
+
+### Login
+
+Atualizado:
+
+```text
+src/auth/pages/LoginPage.tsx
+```
+
+O fluxo passou a realizar a hidratação da identidade após o login.
+
+### Permissões
+
+Atualizado:
+
+```text
+src/auth/hooks/usePermission.ts
+```
+
+A verificação passou a utilizar as permissões reais retornadas pelo Core.
+
+### Guards
+
+Atualizados:
+
+```text
+src/guards/AuthGuard.tsx
+src/guards/PermissionGuard.tsx
+```
+
+O `AuthGuard` restaura a identidade autenticada e o `PermissionGuard` utiliza as permissões reais do usuário.
+
+---
+
+## Fluxo Validado
+
+```text
+POST /auth/login
+        ↓
+JWT
+        ↓
+persistência
+        ↓
+GET /auth/me
+        ↓
+identidade autenticada
+        ↓
+Auth Store
+        ↓
+perfis + permissões
+        ↓
+AuthGuard / PermissionGuard
+        ↓
+interface administrativa
+```
+
+---
+
+## Validações Realizadas
+
+### Login
+
+```text
+POST /auth/login
+→ JWT recebido
+```
+
+Aprovado.
+
+### Identidade
+
+```text
+GET /auth/me
+→ HTTP 200
+→ usuário autenticado
+→ Pessoa
+→ perfis
+→ permissões
+```
+
+Aprovado.
+
+### Restauração de sessão
+
+```text
+F5
+↓
+JWT persistido
+↓
+GET /auth/me
+↓
+identidade restaurada
+```
+
+Aprovado.
+
+### Sessão inválida
+
+O comportamento real do Core foi respeitado:
+
+```text
+403 Forbidden
+```
+
+A sessão é limpa e o usuário é direcionado para autenticação.
+
+### Qualidade
+
+```text
+npm run lint
+```
+
+Resultado:
+
+```text
+0 erros
+```
+
+### Git
+
+```text
+git diff --check
+```
+
+Resultado:
+
+```text
+Nenhum problema de whitespace
+```
+
+---
+
+## Fora do Escopo
+
+Não foram realizados:
+
+* novo mecanismo de autenticação;
+* segundo Auth Store;
+* alteração do JWT do Core;
+* alteração do comportamento HTTP do Core;
+* CRUD de Usuários;
+* CRUD de Perfis;
+* correção da infraestrutura OAuth2 do Core;
+* refatorações arquiteturais não relacionadas à Sprint.
+
+---
+
+## Dependência do Core
+
+A F04 utiliza o contrato real disponibilizado pelo Core:
+
+```text
+GET /auth/me
+Authorization: Bearer <JWT>
+```
+
+O Core permanece responsável por:
+
+* autenticação;
+* autorização;
+* identidade;
+* perfis;
+* permissões;
+* regras de negócio.
+
+O Front permanece responsável por:
+
+* consumir os contratos;
+* armazenar a sessão;
+* apresentar a identidade;
+* controlar a experiência de navegação.
+
+---
+
+# Backlog Posterior
+
+As próximas Sprints permanecem sujeitas à definição e revisão do Roadmap Front.
+
+O planejamento posterior deverá considerar o estado real do projeto após a conclusão da F04, evitando duplicação de funcionalidades já implementadas.
 
 ---
 
 # Observações
 
-A ordem das próximas Sprints poderá ser ajustada pelo Roadmap Frontend conforme a evolução do projeto.
+A ordem das próximas Sprints poderá ser ajustada pelo Roadmap Front conforme a evolução do projeto.
 
 Nenhuma Sprint poderá alterar decisões arquiteturais do Core sem aprovação do Roadmap Core.
 
