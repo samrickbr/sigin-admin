@@ -1,5 +1,6 @@
 import { List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+
 import { usePermission } from '../../auth/hooks/usePermission';
 
 export function Sidebar() {
@@ -59,6 +60,40 @@ export function Sidebar() {
         </ListItemButton>
       </ListItem>
 
+      <ListItem disablePadding>
+        <ListItemButton
+          onClick={() => navigate('/perfis')}
+          sx={{
+            py: 0.5,
+            justifyContent: 'flex-start',
+          }}
+        >
+          <ListItemText
+            primary="Perfis"
+            sx={{
+              textAlign: 'left',
+            }}
+          />
+        </ListItemButton>
+      </ListItem>
+
+      <ListItem disablePadding>
+        <ListItemButton
+          onClick={() => navigate('/permissoes')}
+          sx={{
+            py: 0.5,
+            justifyContent: 'flex-start',
+          }}
+        >
+          <ListItemText
+            primary="Permissões"
+            sx={{
+              textAlign: 'left',
+            }}
+          />
+        </ListItemButton>
+      </ListItem>
+
       {hasPermission('PRODUTO_VISUALIZAR') && (
         <ListItem disablePadding>
           <ListItemButton
@@ -111,6 +146,41 @@ export function Sidebar() {
           />
         </ListItemButton>
       </ListItem>
+
+      <ListItem disablePadding>
+        <ListItemButton
+          onClick={() => navigate('/materiais')}
+          sx={{
+            py: 0.5,
+            justifyContent: 'flex-start',
+          }}
+        >
+          <ListItemText
+            primary="Materiais"
+            sx={{
+              textAlign: 'left',
+            }}
+          />
+        </ListItemButton>
+      </ListItem>
+
+      <ListItem disablePadding>
+        <ListItemButton
+          onClick={() => navigate('/locais')}
+          sx={{
+            py: 0.5,
+            justifyContent: 'flex-start',
+          }}
+        >
+          <ListItemText
+            primary="Locais"
+            sx={{
+              textAlign: 'left',
+            }}
+          />
+        </ListItemButton>
+      </ListItem>
+
     </List>
   );
 }
