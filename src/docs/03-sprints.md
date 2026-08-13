@@ -8,39 +8,23 @@ As Sprints do Front possuem planejamento próprio, porém seguem obrigatoriament
 
 # Fluxo Oficial
 
+```text
 Roadmap Front
-
-↓
-
+      ↓
 Sprint Front
-
-↓
-
+      ↓
 Implementação
-
-↓
-
-Testes
-
-↓
-
+      ↓
+Validação
+      ↓
 Documentação
-
-↓
-
-Commit
-
-↓
-
-Tag
-
-↓
-
+      ↓
 Feedback
-
-↓
-
+      ↓
 Roadmap Front
+```
+
+O versionamento por commit e tag ocorre somente quando autorizado no encerramento da execução correspondente.
 
 ---
 
@@ -58,7 +42,10 @@ Toda Sprint deverá obrigatoriamente responder antes da implementação:
 * recriar componentes existentes;
 * alterar decisões arquiteturais do Core;
 * mover estruturas apenas por organização;
-* substituir implementações por preferência técnica.
+* substituir implementações por preferência técnica;
+* criar endpoints, contratos ou permissões fictícias;
+* criar regras de negócio no Front;
+* criar workarounds para substituir contratos ou comportamentos do Core.
 
 Sempre priorizar evolução antes de substituição.
 
@@ -119,7 +106,7 @@ Não contempla implementação de regras de negócio.
 
 ## Status
 
-Concluída.
+**Concluída.**
 
 ---
 
@@ -161,7 +148,7 @@ Concluída.
 
 ## Status
 
-Concluída.
+**Concluída.**
 
 ## Entregas
 
@@ -181,7 +168,7 @@ Concluída.
 
 ## Status
 
-Concluída.
+**Concluída.**
 
 ## Objetivo
 
@@ -299,7 +286,7 @@ A Sprint não cria um novo mecanismo de autenticação.
 
 ## Status
 
-Concluída.
+**Concluída.**
 
 ---
 
@@ -523,18 +510,288 @@ O Front permanece responsável por:
 
 ---
 
+# Sprint F05 — Produtos, Categorias e Canais de Venda
+
+## Objetivo
+
+Concluir o Backoffice Administrativo com manutenção de:
+
+* Produtos;
+* Categorias;
+* Canais de Venda.
+
+A Sprint também consolidou a integração entre Produto e Categoria e a disponibilidade de Produto por CanalVenda utilizando o contrato `ProdutoCanal`.
+
+---
+
+## Status
+
+**Concluída.**
+
+---
+
+## Escopo
+
+### Produtos
+
+* Listagem de Produtos.
+* Pesquisa e filtros existentes.
+* Cadastro.
+* Edição.
+* Inativação.
+* Preço padrão.
+* Disponibilidade geral.
+* Seleção de Canais de Venda.
+* Integração Produto × Canal utilizando `ProdutoCanal`.
+* Integração Produto × Categoria utilizando `categoriaId`.
+
+### Categorias
+
+* Listagem.
+* Cadastro.
+* Edição.
+* Ativação.
+* Inativação.
+* Feedback de operações.
+* Integração com o cadastro de Produto.
+
+### Canais de Venda
+
+* Listagem.
+* Cadastro.
+* Edição.
+* Exclusão.
+* Visualização da situação.
+* Atualização da listagem.
+* Feedback de operações.
+
+---
+
+## Produto × Categoria
+
+O contrato atualizado de Produto disponibiliza `categoriaId` em `ProdutoResponse`.
+
+Durante a edição de Produto, o Front utiliza diretamente:
+
+```text
+ProdutoResponse.categoriaId
+```
+
+para preencher o campo de Categoria.
+
+O Front não infere a categoria pelo nome e não realiza chamadas adicionais para descobrir o identificador.
+
+O valor selecionado é enviado posteriormente em:
+
+```text
+ProdutoRequest.categoriaId
+```
+
+---
+
+## Produto × Canal
+
+A disponibilidade do Produto em um CanalVenda continua sendo representada por:
+
+```text
+ProdutoCanal
+```
+
+O fluxo administrativo permanece:
+
+```text
+Produto
+   ↓
+CanalVenda
+   ↓
+ProdutoCanal
+   ↓
+Produto disponível naquele canal
+```
+
+O Produto permanece como cadastro central e único.
+
+O Front não cria produtos específicos para cada módulo ou canal.
+
+---
+
+## ProdutoVenda
+
+`ProdutoVenda` permanece como conceito existente no Core.
+
+Entretanto, não é utilizado pelo Front como mecanismo de seleção ou disponibilidade de canais.
+
+A antiga `ProdutoVendaPage.tsx` não faz parte do fluxo atual.
+
+As rotas:
+
+```text
+/produtos-vendas/novo
+/produtos-vendas/:id/editar
+```
+
+não fazem parte do fluxo atual do Front.
+
+---
+
+## Categorias
+
+A manutenção de Categoria utiliza os contratos reais disponibilizados pelo Core:
+
+```text
+GET    /categorias
+GET    /categorias/{id}
+POST   /categorias
+PUT    /categorias/{id}
+```
+
+Não existe `DELETE` para Categoria.
+
+A ativação e a inativação são realizadas através do `PUT` existente.
+
+A validação de duplicidade de nome permanece sob responsabilidade do Core.
+
+O Front apresenta o erro retornado pelo Core sem duplicar a regra de negócio.
+
+---
+
+## Canais de Venda
+
+A manutenção de CanalVenda utiliza os contratos reais disponibilizados pelo Core.
+
+A administração permite:
+
+* consultar;
+* cadastrar;
+* editar;
+* excluir;
+* visualizar a situação.
+
+Os Canais de Venda cadastrados ficam disponíveis para utilização no cadastro de Produto conforme o fluxo existente.
+
+---
+
+## Permissões
+
+Não foram criadas permissões fictícias específicas para Categoria ou CanalVenda.
+
+As proteções existentes do sistema foram preservadas.
+
+---
+
+## Reutilização
+
+A F05 reutilizou a infraestrutura e os componentes compartilhados existentes, incluindo:
+
+* `DataTable`;
+* `ConfirmDialog`;
+* `Feedback`;
+* `Loading`;
+* `EmptyState`;
+* `FormError`;
+* `MainLayout`;
+* React Router;
+* React Query;
+* Axios;
+* React Hook Form;
+* Zod.
+
+Não foram criadas abstrações paralelas para Produto × Canal.
+
+---
+
+## Validações Realizadas
+
+Foram realizadas validações funcionais das áreas de:
+
+### Produtos
+
+* listagem;
+* pesquisa;
+* cadastro;
+* edição;
+* carregamento da categoria;
+* alteração da categoria;
+* seleção de canais;
+* alteração dos canais;
+* inativação.
+
+### Categorias
+
+* listagem;
+* cadastro;
+* edição;
+* ativação;
+* inativação;
+* atualização da listagem;
+* tratamento de erro retornado pelo Core.
+
+### Canais de Venda
+
+* listagem;
+* cadastro;
+* edição;
+* exclusão;
+* visualização da situação;
+* atualização da listagem.
+
+### Build
+
+Comando executado:
+
+```text
+npm run build
+```
+
+Resultado:
+
+```text
+Build de produção aprovado.
+TypeScript aprovado.
+Vite build aprovado.
+```
+
+---
+
+## Performance
+
+A investigação de performance identificada no Front permaneceu fora do escopo da F05.
+
+Não foram realizadas refatorações de performance durante a Sprint.
+
+---
+
+## Testes Automatizados
+
+Os testes automatizados existentes permaneceram fora do critério principal da Sprint F05 por estarem defasados, conforme definição da Sprint.
+
+---
+
+## Dependências do Core
+
+A F05 depende dos contratos reais disponibilizados pelo Core para:
+
+* Produto;
+* Categoria;
+* CanalVenda;
+* ProdutoCanal.
+
+Não foram realizadas alterações no Core durante a execução da Sprint Front.
+
+---
+
 # Backlog Posterior
 
 As próximas Sprints permanecem sujeitas à definição e revisão do Roadmap Front.
 
-O planejamento posterior deverá considerar o estado real do projeto após a conclusão da F04, evitando duplicação de funcionalidades já implementadas.
+O planejamento posterior deverá considerar o estado real do projeto após a conclusão da F05, evitando duplicação de funcionalidades já implementadas.
+
+Questões de arquitetura ou regras de negócio identificadas durante a evolução deverão ser encaminhadas ao Roadmap Core antes de qualquer alteração estrutural no Front.
 
 ---
 
 # Observações
 
-A ordem das próximas Sprints poderá ser ajustada pelo Roadmap Front conforme a evolução do projeto.
+A F05 consolidou o Backoffice administrativo de Produtos, Categorias e Canais de Venda sem alterar a arquitetura comercial definida pelo Core.
 
-Nenhuma Sprint poderá alterar decisões arquiteturais do Core sem aprovação do Roadmap Core.
-
-Todas as evoluções do Frontend deverão permanecer desacopladas das regras de negócio, consumindo exclusivamente as APIs disponibilizadas pelo Core.
+O Front permanece responsável pela experiência administrativa e pelo consumo dos contratos disponibilizados pelo Core, enquanto as regras de negócio e decisões de domínio permanecem sob responsabilidade do Core.

@@ -22,33 +22,26 @@ export function Header() {
   return (
     <Box
       sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         p: 2,
       }}
     >
-      <Typography variant="h6">
-        SIGIN Administrativo
-      </Typography>
+      <Typography variant="h6">SIGIN Administrativo</Typography>
 
       <Box
         sx={{
-          display: "flex",
-          alignItems: "center",
+          display: 'flex',
+          alignItems: 'center',
           gap: 2,
         }}
       >
         <Typography>
-          {usuario?.nome}
-          {" "}
-          ({usuario?.perfil})
+          {usuario?.pessoa.nome} ({usuario?.perfis.map((perfil) => perfil.nome).join(', ')})
         </Typography>
 
-        <Button
-          variant="outlined"
-          onClick={handleLogout}
-        >
+        <Button variant="outlined" onClick={handleLogout}>
           Sair
         </Button>
       </Box>

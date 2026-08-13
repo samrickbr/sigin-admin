@@ -1,364 +1,509 @@
-# Fluxo de Execução das Sprints — SIGIN Frontend
+# Roadmap Frontend — SIGIN
 
 ## Objetivo
 
-Este documento define o modelo oficial de execução das Sprints do Frontend Administrativo do SIGIN.
+Este documento define a arquitetura, diretrizes e evolução do Frontend Administrativo do SIGIN.
 
-O objetivo é separar claramente:
+O Roadmap Frontend é responsável exclusivamente pelas decisões relacionadas à interface, experiência do usuário e arquitetura React.
 
-* decisões arquiteturais;
-* planejamento;
-* execução técnica;
-* validação;
-* documentação.
-
-O Roadmap define.
-
-A Sprint executa.
+As regras de negócio, modelo de domínio e arquitetura do ERP permanecem sob responsabilidade do Roadmap do Core.
 
 ---
 
-# Modelo de Responsabilidades
+# Hierarquia de decisão
 
-## Roadmap Front
+Roadmap Core (Autoridade Máxima)
 
-Responsável por:
-
-* arquitetura do Frontend;
-* decisões técnicas;
-* padrões de desenvolvimento;
-* definição das Sprints;
-* análise de feedbacks;
-* evolução do Design System;
-* validação das entregas;
-* fechamento da Sprint;
-* atualização da documentação oficial.
-
-O Roadmap não deve executar alterações de código da Sprint.
-
----
-
-## Sprint Front
-
-Responsável por:
-
-* implementar as decisões aprovadas;
-* alterar código;
-* executar testes;
-* corrigir problemas encontrados;
-* fornecer o resultado da implementação;
-* registrar limitações encontradas.
-
-A Sprint não define arquitetura por conta própria.
-
----
-
-# Executor da Sprint
-
-O Executor é a ferramenta ou agente utilizado como apoio à implementação técnica.
-
-Pode ser utilizado para:
-
-* analisar código fornecido;
-* orientar alterações;
-* gerar arquivos completos;
-* executar comandos quando possuir acesso ao workspace;
-* corrigir erros;
-* validar funcionamento;
-* informar limitações.
-
-Quando o Executor não possuir acesso direto ao workspace, o desenvolvedor deverá fornecer os arquivos ou trechos necessários.
-
-Nesse cenário:
-
-```text
-Roadmap
-   ↓
-Define Sprint
-   ↓
-Desenvolvedor fornece contexto/arquivos
-   ↓
-Executor analisa
-   ↓
-Executor orienta ou fornece arquivos completos
-   ↓
-Desenvolvedor aplica alterações
-   ↓
-Testes
-   ↓
-Roadmap valida e fecha Sprint
-```
-
-O Executor não possui autonomia para:
-
-* alterar arquitetura;
-* criar regras de negócio;
-* substituir padrões definidos;
-* modificar decisões do Roadmap;
-* criar contratos de API por suposição.
-
----
-
-# Fonte de Verdade
-
-O repositório Git atual é a fonte primária da verdade estrutural do projeto.
-
-Quando o Executor possuir acesso ao workspace, deverá verificar:
-
-```text
-branch atual
 ↓
-git status
+
+Roadmap Frontend
+
 ↓
-estrutura real
+
+Sprint Frontend
+
 ↓
-arquivos existentes
-↓
-implementações existentes
-↓
-dependências
-↓
-execução da Sprint
-```
 
-Quando o Executor não possuir acesso ao workspace, a mesma validação deverá ser realizada através dos arquivos fornecidos pelo desenvolvedor.
-
-Em caso de divergência:
-
-```text
-Código atual
-    ↑
- prioridade
-    ↓
-Documentação
-    ↓
-Memória/conversa
-```
-
-A documentação deve ser atualizada posteriormente para refletir o estado real.
-
----
-
-# Regra de Arquivos
-
-O Executor não deve assumir que um arquivo existe apenas porque:
-
-* foi mencionado em uma Sprint anterior;
-* apareceu em uma conversa;
-* foi informado por outro agente;
-* aparece em documentação desatualizada;
-* possui nome semelhante a outro arquivo.
-
-Antes de utilizar um arquivo, sua existência deve ser confirmada.
-
-Se um arquivo mencionado não existir:
-
-1. não criar automaticamente;
-2. localizar a implementação equivalente;
-3. verificar se ela pode ser reutilizada;
-4. informar a divergência;
-5. criar nova estrutura somente quando estiver prevista ou aprovada.
-
----
-
-# Regras de Implementação
-
-Antes de implementar, responder:
-
-* O que já existe?
-* O que pode ser reutilizado?
-* O que precisa ser evoluído?
-* O que realmente precisa ser criado?
-
-Durante a implementação:
-
-* seguir os padrões existentes;
-* reutilizar componentes;
-* evitar alterações fora do escopo;
-* preservar contratos existentes;
-* registrar limitações;
-* não inventar contratos de API.
-
----
-
-# Alterações Fora do Escopo
-
-Quando for identificada uma alteração necessária que não pertença claramente à Sprint:
-
-1. parar antes de implementá-la;
-2. informar o arquivo afetado;
-3. explicar por que a alteração seria necessária;
-4. informar o impacto;
-5. aguardar decisão do Roadmap.
-
-O desenvolvedor poderá consultar o Roadmap antes de aplicar qualquer alteração fora do escopo.
-
----
-
-# Execução com Arquivos Fornecidos
-
-Quando o Executor não tiver acesso direto ao computador do desenvolvedor:
-
-* o desenvolvedor poderá enviar arquivos como anexos;
-* o Executor deverá trabalhar exclusivamente sobre o conteúdo fornecido;
-* não deverá presumir conteúdo de arquivos não enviados;
-* quando precisar de outro arquivo, deverá solicitar somente o arquivo necessário;
-* alterações em arquivos existentes deverão preferencialmente ser fornecidas como conteúdo completo quando essa for a convenção adotada pelo projeto.
-
----
-
-# Responsabilidade do Desenvolvedor
-
-O desenvolvedor é responsável por:
-
-* aplicar as alterações sugeridas;
-* revisar o código antes de executar;
-* executar os comandos no ambiente local;
-* executar testes;
-* confirmar resultados;
-* controlar commit e push.
-
-O Executor pode orientar esses passos, mas não deve assumir que alterações foram aplicadas sem confirmação.
-
----
-
-# Fechamento da Sprint
-
-Após a implementação:
-
-1. executar testes;
-2. executar lint/build quando aplicável;
-3. verificar `git diff --check`;
-4. verificar `git status`;
-5. revisar alterações;
-6. atualizar documentação;
-7. realizar commit;
-8. realizar push;
-9. registrar feedback;
-10. retornar ao Roadmap.
-
----
-
-# Commit e Push
-
-O fechamento Git deve ser realizado somente após a validação da Sprint.
-
-A documentação deve fazer parte do fechamento quando houver alterações documentais relacionadas à Sprint.
-
-Arquivos de configuração pessoal de ferramentas, caches ou dados locais não devem ser adicionados ao commit sem decisão explícita.
-
----
-
-# Comunicação entre Roadmap e Sprint
-
-Toda Sprint deverá possuir:
-
-## Contexto
-
-O que já existe.
-
-## Objetivo
-
-O que deve ser entregue.
-
-## Restrições
-
-O que não pode ser alterado.
-
-## Critérios de Conclusão
-
-Como validar a entrega.
-
-## Feedback
-
-O que foi encontrado durante a implementação e que poderá afetar futuras Sprints.
-
----
-
-# Fluxo Oficial
-
-```text
-Roadmap Front
-      ↓
-Define Sprint
-      ↓
-Contexto + Objetivo + Restrições
-      ↓
-Executor recebe contexto
-      ↓
-Análise inicial
-      ↓
 Implementação
-      ↓
+
+↓
+
 Testes
-      ↓
-Validação
-      ↓
+
+↓
+
 Documentação
-      ↓
-Commit
-      ↓
-Tag
-      ↓
+
+↓
+
+Commit / Tag
+
+↓
+
 Feedback
-      ↓
-Roadmap Front
+
+↓
+
+Roadmap Frontend
+
+Caso seja identificada alguma limitação arquitetural do Core, esta deverá ser registrada como feedback para o Roadmap do Core, não sendo permitidas alterações estruturais durante a Sprint Frontend.
+
+---
+
+# Responsabilidades do Roadmap Frontend
+
+Definir:
+
+* Arquitetura React;
+* Estrutura do projeto;
+* Organização dos módulos;
+* Navegação;
+* Layout administrativo;
+* Design System;
+* Componentes reutilizáveis;
+* Estratégia de autenticação;
+* Estratégia de autorização;
+* Consumo das APIs do Core;
+* Experiência do usuário (UX);
+* Interface (UI);
+* Performance do Frontend.
+
+Não definir:
+
+* Regras de negócio;
+* Estrutura do banco de dados;
+* APIs do Core;
+* Entidades do domínio;
+* Alterações arquiteturais do Core.
+
+---
+
+# Princípios
+
+Antes de qualquer implementação, responder obrigatoriamente:
+
+1. O que já existe?
+2. O que pode ser reutilizado?
+3. O que precisa ser evoluído?
+4. O que realmente precisa ser criado?
+
+É vedado durante as Sprints:
+
+* recriar componentes existentes;
+* substituir implementações apenas por preferência técnica;
+* alterar padrões definidos neste Roadmap sem aprovação;
+* criar regras de negócio no Frontend;
+* inventar contratos ou endpoints do Core;
+* criar abstrações paralelas para substituir conceitos existentes no Core.
+
+Sempre priorizar evolução antes de substituição.
+
+---
+
+# Organização das Sprints
+
+Cada Sprint Front deverá seguir obrigatoriamente o fluxo:
+
+Planejamento
+
+↓
+
+Implementação
+
+↓
+
+Testes
+
+↓
+
+Documentação
+
+↓
+
+Commit
+
+↓
+
+Tag
+
+↓
+
+Feedback
+
+↓
+
+Atualização do Roadmap
+
+---
+
+# Estado atual do projeto
+
+O Frontend Administrativo utiliza:
+
+* React;
+* Vite;
+* TypeScript;
+* React Router;
+* Material UI;
+* React Query;
+* Zustand;
+* Axios;
+* React Hook Form;
+* Zod.
+
+A estrutura do projeto é modular e possui infraestrutura compartilhada para:
+
+* autenticação;
+* autorização;
+* layout;
+* navegação;
+* componentes comuns;
+* tabelas;
+* formulários;
+* serviços;
+* gerenciamento de estado e cache.
+
+O projeto possui atualmente módulos administrativos para funcionalidades já implementadas e em evolução, incluindo:
+
+* Dashboard;
+* Pessoas;
+* Produtos;
+* Categorias;
+* Canais de Venda;
+* Usuários;
+* Perfis.
+
+A estrutura real do projeto deve sempre prevalecer sobre documentação ou histórico quando houver divergência.
+
+---
+
+# Objetivo do Frontend
+
+Construir o Backoffice Administrativo do SIGIN, que será utilizado pelos módulos:
+
+* Core;
+* Delivery;
+* PDV;
+* Comanda;
+* Produção;
+* Financeiro;
+* demais módulos futuros.
+
+O Backoffice representa o ERP como um todo, não um módulo específico.
+
+---
+
+# Arquitetura de Produto
+
+O Produto permanece como cadastro central e unificado no Frontend.
+
+Conceitualmente:
+
+```text
+Produto
+├── dados gerais
+├── categoria
+├── preço padrão
+├── disponibilidade geral
+└── disponibilidade por CanalVenda
+    └── ProdutoCanal
 ```
 
----
+O Frontend deve respeitar os conceitos e contratos definidos pelo Core.
 
-# Alterações Arquiteturais
+A disponibilidade de um Produto em determinado CanalVenda é representada por `ProdutoCanal`.
 
-Caso seja encontrada necessidade arquitetural:
-
-Não implementar automaticamente.
-
-Registrar:
-
-* problema encontrado;
-* impacto;
-* alternativa;
-* recomendação.
-
-Enviar para:
-
-* Roadmap Front; ou
-* Roadmap Core, quando envolver contrato ou regra do Core.
+O Frontend não deve criar produtos específicos por módulo ou canal, nem criar abstrações paralelas para representar essa relação.
 
 ---
 
-# Executor Oficial
+# Preço de Produto
 
-O executor utilizado em cada Sprint poderá variar conforme a disponibilidade e desempenho das ferramentas.
+O modelo de preços segue a arquitetura definida pelo Core:
 
-O projeto poderá utilizar:
+* Produto possui um preço global/padrão;
+* cada CanalVenda ou módulo que comercializa o Produto pode possuir seu próprio preço específico;
+* a existência de preço associado à relação Produto × Canal é intencional.
 
-* VS Code;
-* Continue.dev;
-* modelos locais;
-* Gemini;
-* outros agentes ou ferramentas aprovadas.
+O Frontend deve consumir e apresentar essa estrutura conforme os contratos reais disponibilizados pelo Core.
 
-A ferramenta utilizada não altera as regras arquiteturais do projeto.
+Qualquer dúvida ou inconsistência sobre a modelagem de preços deverá ser encaminhada ao Roadmap do Core antes de alterações no Frontend ou no Core.
 
 ---
 
-# Objetivo do Modelo
+# Produto × CanalVenda
 
-Este fluxo permite:
+A relação entre Produto e CanalVenda utiliza o conceito `ProdutoCanal`.
 
-* maior velocidade de desenvolvimento;
-* menos retrabalho;
-* separação de responsabilidades;
-* histórico de decisões;
-* evolução controlada do SIGIN;
-* rastreabilidade das alterações;
-* redução de alterações fora do escopo.
+O modelo adotado pelo Frontend é:
+
+```text
+Produto
+   ↓
+CanalVenda
+   ↓
+ProdutoCanal
+   ↓
+disponibilidade do Produto naquele CanalVenda
+```
+
+O Frontend não deve utilizar `ProdutoVenda` como mecanismo de seleção ou disponibilidade dos canais do Produto.
+
+Não devem ser criados conceitos paralelos como:
+
+* ProdutoDelivery;
+* ProdutoBalcão;
+* ProdutoMarketplace;
+* ProdutoModulo;
+* ou equivalentes.
+
+CanalVenda continua sendo o conceito utilizado para representar o contexto comercial disponibilizado pelo Core.
 
 ---
 
-# Status
+# Categoria
 
-Aprovado.
+Categoria é utilizada pelo Produto como parte de seu cadastro.
 
-Aplicado a partir da Sprint F04.
+O contrato atual de Produto disponibiliza `categoriaId` diretamente no `ProdutoResponse`.
+
+Durante a edição de Produto, o Frontend deve utilizar diretamente esse identificador para preencher o campo de Categoria.
+
+O Frontend não deve inferir o identificador da Categoria pelo nome.
+
+A regra de negócio relacionada à unicidade ou validação de Categoria permanece sob responsabilidade do Core.
+
+---
+
+# Sprint F01 — Fundação do Backoffice Administrativo
+
+Status:
+
+**Concluída.**
+
+Principais entregas:
+
+* estrutura React + Vite + TypeScript;
+* React Router;
+* Providers;
+* layout administrativo;
+* Header;
+* Sidebar;
+* autenticação JWT;
+* persistência de sessão;
+* AuthGuard;
+* Axios;
+* React Query;
+* Zustand;
+* Material UI Theme.
+
+---
+
+# Sprint F02 — Design System + Componentes Base
+
+Status:
+
+**Concluída.**
+
+Principais entregas:
+
+* Theme consolidado;
+* tokens visuais;
+* overrides MUI;
+* Loading;
+* EmptyState;
+* Feedback;
+* ConfirmDialog;
+* DataTable;
+* FormError.
+
+---
+
+# Sprint F03 — Dashboard Administrativo
+
+Status:
+
+**Concluída.**
+
+Principais entregas:
+
+* Dashboard Administrativo;
+* cards de indicadores;
+* `DashboardIndicatorCard`;
+* `dashboardService`;
+* `useDashboard`;
+* estados de loading, vazio e erro;
+* integração com `MainLayout`;
+* proteção por `AuthGuard`.
+
+O Dashboard permanece preparado para futura integração com contratos oficiais do Core.
+
+---
+
+# Sprint F04 — IAM e Autenticação do Front
+
+Status:
+
+**Concluída.**
+
+Objetivo:
+
+Consolidar a autenticação do Frontend utilizando a infraestrutura existente e o contrato real `GET /auth/me`.
+
+Principais entregas:
+
+* integração com `/auth/me`;
+* identidade autenticada;
+* Pessoa vinculada;
+* perfis;
+* permissões;
+* restauração da sessão;
+* integração com `AuthStore`;
+* integração com `AuthGuard`;
+* integração com `PermissionGuard`;
+* utilização das permissões reais retornadas pelo Core.
+
+A Sprint não criou mecanismo paralelo de autenticação ou autorização.
+
+---
+
+# Sprint F05 — Produtos, Categorias e Canais de Venda
+
+Status:
+
+**Concluída.**
+
+## Objetivo
+
+Concluir a manutenção administrativa de:
+
+* Produtos;
+* Categorias;
+* Canais de Venda.
+
+Também foram consolidadas as integrações:
+
+* Produto × Categoria;
+* Produto × CanalVenda;
+* disponibilidade de Produto por CanalVenda.
+
+## Produtos
+
+A manutenção de Produto foi preservada e evoluída somente quando necessário para os contratos atualizados do Core.
+
+O Frontend mantém:
+
+* cadastro;
+* edição;
+* listagem;
+* busca;
+* preço padrão;
+* disponibilidade geral;
+* categoria;
+* seleção de Canais de Venda;
+* integração Produto × Canal utilizando `ProdutoCanal`.
+
+O `ProdutoResponse.categoriaId` é utilizado diretamente na edição do Produto.
+
+## Categorias
+
+Foi implementada a manutenção administrativa de Categoria, incluindo:
+
+* listagem;
+* cadastro;
+* edição;
+* ativação;
+* inativação;
+* feedback de operações;
+* integração com Produto.
+
+A ativação e inativação utilizam o `PUT` disponibilizado pelo Core.
+
+Não existe exclusão física de Categoria pelo Front.
+
+## Canais de Venda
+
+Foi implementada a manutenção administrativa de CanalVenda, incluindo:
+
+* listagem;
+* cadastro;
+* edição;
+* exclusão;
+* apresentação da situação;
+* atualização da listagem;
+* feedback das operações.
+
+Os Canais de Venda administrados nesta área permanecem disponíveis para utilização na relação Produto × Canal.
+
+## ProdutoVenda
+
+`ProdutoVenda` permanece como conceito existente no Core, porém não é utilizado pelo Frontend como mecanismo de seleção ou disponibilidade de canais do Produto.
+
+A antiga `ProdutoVendaPage` não faz parte do fluxo atual do Frontend.
+
+As rotas relacionadas à antiga manutenção específica de ProdutoVenda também não fazem parte do fluxo atual.
+
+---
+
+# Estado arquitetural atual
+
+Após a conclusão da F05, o Frontend possui como diretrizes consolidadas:
+
+* Produto é cadastro central e unificado;
+* Categoria integra o cadastro de Produto;
+* Produto possui preço padrão;
+* CanalVenda representa o contexto comercial;
+* ProdutoCanal representa a disponibilidade do Produto por CanalVenda;
+* ProdutoVenda não é utilizado pelo Front para seleção de canais;
+* contratos e regras de negócio permanecem sob responsabilidade do Core;
+* o Frontend consome os contratos reais disponibilizados pelo Core.
+
+---
+
+# Performance
+
+Existe uma investigação separada relacionada à percepção de lentidão no carregamento do Frontend, incluindo pontos como bootstrap, Providers, Zustand, React Query, autenticação, `/auth/me`, MainLayout e Sidebar.
+
+Essa investigação permanece separada das Sprints funcionais e não deve ser misturada à implementação de funcionalidades sem definição específica do Roadmap Frontend.
+
+---
+
+# Próximas Sprints
+
+O planejamento das próximas Sprints permanece sujeito à análise do estado real do projeto e à definição do Roadmap Frontend.
+
+Nenhuma Sprint deverá duplicar funcionalidades já implementadas.
+
+Qualquer necessidade que envolva:
+
+* contrato do Core;
+* regra de negócio;
+* arquitetura do domínio;
+* alteração estrutural do Core;
+
+deverá ser encaminhada ao Roadmap do Core antes da implementação.
+
+---
+
+# Governança
+
+O Roadmap Frontend permanece responsável pelas decisões arquiteturais do Frontend.
+
+O Roadmap Core permanece como autoridade máxima para:
+
+* domínio;
+* regras de negócio;
+* arquitetura do ERP;
+* banco de dados;
+* contratos das APIs;
+* segurança do Core.
+
+As Sprints Frontend devem implementar somente decisões previamente estabelecidas.
+
+---
+
+# Status do documento
+
+Documento atualizado após a conclusão da Sprint F05.
+
+A documentação deve continuar refletindo o estado real do projeto, prevalecendo o código existente em caso de divergência.
