@@ -1,186 +1,184 @@
-import { List, ListItem, ListItemButton, ListItemText } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+} from '@mui/material';
+import {
+  DashboardOutlined,
+  PeopleOutlined,
+  PersonOutlined,
+  SecurityOutlined,
+  LockOutlined,
+  Inventory2Outlined,
+  CategoryOutlined,
+  PointOfSaleOutlined,
+  BuildOutlined,
+  LocationOnOutlined,
+} from '@mui/icons-material';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { usePermission } from '../../auth/hooks/usePermission';
+
+const menuGroups = [
+  {
+    label: 'Visão geral',
+    items: [
+      {
+        label: 'Dashboard',
+        path: '/dashboard',
+        icon: DashboardOutlined,
+      },
+    ],
+  },
+  {
+    label: 'Cadastros',
+    items: [
+      {
+        label: 'Pessoas',
+        path: '/pessoas',
+        icon: PeopleOutlined,
+      },
+      {
+        label: 'Usuários',
+        path: '/usuarios',
+        icon: PersonOutlined,
+      },
+      {
+        label: 'Perfis',
+        path: '/perfis',
+        icon: SecurityOutlined,
+      },
+      {
+        label: 'Permissões',
+        path: '/permissoes',
+        icon: LockOutlined,
+      },
+      {
+        label: 'Produtos',
+        path: '/produtos',
+        icon: Inventory2Outlined,
+      },
+      {
+        label: 'Categorias',
+        path: '/categorias',
+        icon: CategoryOutlined,
+      },
+      {
+        label: 'Canais de Venda',
+        path: '/canais-venda',
+        icon: PointOfSaleOutlined,
+      },
+      {
+        label: 'Materiais',
+        path: '/materiais',
+        icon: BuildOutlined,
+      },
+      {
+        label: 'Locais',
+        path: '/locais',
+        icon: LocationOnOutlined,
+      },
+    ],
+  },
+];
 
 export function Sidebar() {
   const { hasPermission } = usePermission();
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
-    <List>
-      <ListItem disablePadding>
-        <ListItemButton
-          onClick={() => navigate('/dashboard')}
-          sx={{
-            py: 0.5,
-            justifyContent: 'flex-start',
-          }}
-        >
-          <ListItemText
-            primary="Dashboard"
-            sx={{
-              textAlign: 'left',
-            }}
-          />
-        </ListItemButton>
-      </ListItem>
+    <Box
+      sx={{
+        height: '100%',
+        px: 1.5,
+        py: 2,
+        overflowY: 'auto',
+      }}
+    >
+      {menuGroups.map((group) => {
+        const visibleItems = group.items.filter((item) => {
+          if (item.path === '/produtos') {
+            return hasPermission('PRODUTO_VISUALIZAR');
+          }
 
-      <ListItem disablePadding>
-        <ListItemButton
-          onClick={() => navigate('/pessoas')}
-          sx={{
-            py: 0.5,
-            justifyContent: 'flex-start',
-          }}
-        >
-          <ListItemText
-            primary="Pessoas"
-            sx={{
-              textAlign: 'left',
-            }}
-          />
-        </ListItemButton>
-      </ListItem>
+          return true;
+        });
 
-      <ListItem disablePadding>
-        <ListItemButton
-          onClick={() => navigate('/usuarios')}
-          sx={{
-            py: 0.5,
-            justifyContent: 'flex-start',
-          }}
-        >
-          <ListItemText
-            primary="Usuários"
-            sx={{
-              textAlign: 'left',
-            }}
-          />
-        </ListItemButton>
-      </ListItem>
+        if (visibleItems.length === 0) {
+          return null;
+        }
 
-      <ListItem disablePadding>
-        <ListItemButton
-          onClick={() => navigate('/perfis')}
-          sx={{
-            py: 0.5,
-            justifyContent: 'flex-start',
-          }}
-        >
-          <ListItemText
-            primary="Perfis"
-            sx={{
-              textAlign: 'left',
-            }}
-          />
-        </ListItemButton>
-      </ListItem>
-
-      <ListItem disablePadding>
-        <ListItemButton
-          onClick={() => navigate('/permissoes')}
-          sx={{
-            py: 0.5,
-            justifyContent: 'flex-start',
-          }}
-        >
-          <ListItemText
-            primary="Permissões"
-            sx={{
-              textAlign: 'left',
-            }}
-          />
-        </ListItemButton>
-      </ListItem>
-
-      {hasPermission('PRODUTO_VISUALIZAR') && (
-        <ListItem disablePadding>
-          <ListItemButton
-            onClick={() => navigate('/produtos')}
-            sx={{
-              py: 0.5,
-              justifyContent: 'flex-start',
-            }}
-          >
-            <ListItemText
-              primary="Produtos"
+        return (
+          <Box key={group.label} sx={{ mb: 2 }}>
+            <Typography
+              variant="overline"
               sx={{
-                textAlign: 'left',
+                display: 'block',
+                px: 1.5,
+                mb: 0.75,
+                fontWeight: 700,
+                letterSpacing: 1,
+                color: 'text.secondary',
               }}
-            />
-          </ListItemButton>
-        </ListItem>
-      )}
+            >
+              {group.label}
+            </Typography>
 
-      <ListItem disablePadding>
-        <ListItemButton
-          onClick={() => navigate('/categorias')}
-          sx={{
-            py: 0.5,
-            justifyContent: 'flex-start',
-          }}
-        >
-          <ListItemText
-            primary="Categorias"
-            sx={{
-              textAlign: 'left',
-            }}
-          />
-        </ListItemButton>
-      </ListItem>
+            <List disablePadding>
+              {visibleItems.map((item) => {
+                const Icon = item.icon;
+                const active = location.pathname.startsWith(item.path);
 
-      <ListItem disablePadding>
-        <ListItemButton
-          onClick={() => navigate('/canais-venda')}
-          sx={{
-            py: 0.5,
-            justifyContent: 'flex-start',
-          }}
-        >
-          <ListItemText
-            primary="Canais de Venda"
-            sx={{
-              textAlign: 'left',
-            }}
-          />
-        </ListItemButton>
-      </ListItem>
+                return (
+                  <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+                    <ListItemButton
+                      selected={active}
+                      onClick={() => navigate(item.path)}
+                      sx={{
+                        minHeight: 44,
+                        borderRadius: 2,
+                        px: 1.5,
+                        '&.Mui-selected': {
+                          bgcolor: 'action.selected',
+                          color: 'primary.main',
+                        },
+                        '&.Mui-selected:hover': {
+                          bgcolor: 'action.selected',
+                        },
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 40,
+                          color: 'inherit',
+                        }}
+                      >
+                        <Icon fontSize="small" />
+                      </ListItemIcon>
 
-      <ListItem disablePadding>
-        <ListItemButton
-          onClick={() => navigate('/materiais')}
-          sx={{
-            py: 0.5,
-            justifyContent: 'flex-start',
-          }}
-        >
-          <ListItemText
-            primary="Materiais"
-            sx={{
-              textAlign: 'left',
-            }}
-          />
-        </ListItemButton>
-      </ListItem>
-
-      <ListItem disablePadding>
-        <ListItemButton
-          onClick={() => navigate('/locais')}
-          sx={{
-            py: 0.5,
-            justifyContent: 'flex-start',
-          }}
-        >
-          <ListItemText
-            primary="Locais"
-            sx={{
-              textAlign: 'left',
-            }}
-          />
-        </ListItemButton>
-      </ListItem>
-
-    </List>
+                      <ListItemText
+                        primary={item.label}
+                        slotProps={{
+                          primary: {
+                            sx: {
+                              fontWeight: active ? 600 : 500,
+                            },
+                          },
+                        }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                );
+              })}
+            </List>
+          </Box>
+        );
+      })}
+    </Box>
   );
 }
