@@ -1,12 +1,11 @@
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import InboxIcon from '@mui/icons-material/Inbox';
+import { InboxOutlined } from '@mui/icons-material';
+import { Box, Typography } from '@mui/material';
 
 interface EmptyStateProps {
-  message?: string;
+  message: string;
 }
 
-export function EmptyState({ message = 'Nenhum registro encontrado' }: EmptyStateProps) {
+export function EmptyState({ message }: EmptyStateProps) {
   return (
     <Box
       sx={{
@@ -14,13 +13,24 @@ export function EmptyState({ message = 'Nenhum registro encontrado' }: EmptyStat
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: 200,
         gap: 1,
+        minHeight: 220,
+        px: 3,
+        py: 4,
+        textAlign: 'center',
+        color: 'text.secondary',
       }}
     >
-      <InboxIcon fontSize="large" />
+      <InboxOutlined
+        sx={{
+          fontSize: 40,
+          color: 'text.secondary',
+        }}
+      />
 
-      <Typography color="text.secondary">{message}</Typography>
+      <Typography variant="body2" color="text.secondary">
+        {message}
+      </Typography>
     </Box>
   );
 }

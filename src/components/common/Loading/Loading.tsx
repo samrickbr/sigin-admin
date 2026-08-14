@@ -1,17 +1,17 @@
-import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
+import { Box, CircularProgress } from '@mui/material';
 
 export function Loading() {
   return (
     <Box
       sx={{
         display: 'flex',
-        justifyContent: 'center',
         alignItems: 'center',
-        minHeight: 200,
+        justifyContent: 'center',
+        minHeight: 240,
+        width: '100%',
       }}
     >
-      <CircularProgress />
+      <CircularProgress size={32} />
     </Box>
   );
 }

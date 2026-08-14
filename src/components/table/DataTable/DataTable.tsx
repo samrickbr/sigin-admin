@@ -28,7 +28,17 @@ export function DataTable<T extends object>({
   emptyMessage = 'Nenhum registro encontrado',
 }: DataTableProps<T>) {
   return (
-    <TableContainer component={Paper}>
+    <TableContainer
+      component={Paper}
+      sx={{
+        width: '100%',
+        border: 1,
+        borderColor: 'divider',
+        borderRadius: 2,
+        bgcolor: 'background.paper',
+        boxShadow: 'none',
+      }}
+    >
       <Table>
         <TableHead>
           <TableRow>
