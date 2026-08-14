@@ -1,91 +1,97 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, type PaletteMode } from '@mui/material/styles';
 
-import { colors, typography, radius } from './';
+import { darkColors, lightColors, radius, typography } from './';
 
-export const theme = createTheme({
-  palette: {
-    mode: 'dark',
+export function createAppTheme(mode: PaletteMode) {
+  const colors = mode === 'light' ? lightColors : darkColors;
 
-    primary: colors.primary,
-    secondary: colors.secondary,
+  return createTheme({
+    palette: {
+      mode,
 
-    background: colors.background,
-    text: colors.text,
+      primary: colors.primary,
+      secondary: colors.secondary,
 
-    success: colors.success,
-    warning: colors.warning,
-    error: colors.error,
+      background: colors.background,
+      text: colors.text,
 
-    divider: colors.divider,
-  },
+      success: colors.success,
+      warning: colors.warning,
+      error: colors.error,
 
-  typography,
+      divider: colors.divider,
+    },
 
-  shape: {
-    borderRadius: radius.md,
-  },
+    typography,
 
-  components: {
-    MuiButton: {
-      defaultProps: {
-        variant: 'contained',
-        disableElevation: true,
+    shape: {
+      borderRadius: radius.md,
+    },
+
+    components: {
+      MuiButton: {
+        defaultProps: {
+          variant: 'contained',
+          disableElevation: true,
+        },
+        styleOverrides: {
+          root: {
+            textTransform: 'none',
+            fontWeight: 600,
+            borderRadius: radius.md,
+            minHeight: 40,
+            paddingInline: 20,
+          },
+        },
       },
-      styleOverrides: {
-        root: {
-          textTransform: 'none',
-          fontWeight: 600,
-          borderRadius: radius.md,
-          minHeight: 40,
-          paddingInline: 20,
+
+      MuiTextField: {
+        defaultProps: {
+          variant: 'outlined',
+          fullWidth: true,
+          size: 'small',
+        },
+      },
+
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            borderRadius: radius.md,
+          },
+        },
+      },
+
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            borderRadius: radius.lg,
+          },
+        },
+      },
+
+      MuiDialog: {
+        styleOverrides: {
+          paper: {
+            borderRadius: radius.lg,
+          },
+        },
+      },
+
+      MuiAlert: {
+        defaultProps: {
+          variant: 'filled',
+        },
+      },
+
+      MuiTableCell: {
+        styleOverrides: {
+          head: {
+            fontWeight: 700,
+          },
         },
       },
     },
+  });
+}
 
-    MuiTextField: {
-      defaultProps: {
-        variant: 'outlined',
-        fullWidth: true,
-        size: 'small',
-      },
-    },
-
-    MuiOutlinedInput: {
-      styleOverrides: {
-        root: {
-          borderRadius: radius.md,
-        },
-      },
-    },
-
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: radius.lg,
-        },
-      },
-    },
-
-    MuiDialog: {
-      styleOverrides: {
-        paper: {
-          borderRadius: radius.lg,
-        },
-      },
-    },
-
-    MuiAlert: {
-      defaultProps: {
-        variant: 'filled',
-      },
-    },
-
-    MuiTableCell: {
-      styleOverrides: {
-        head: {
-          fontWeight: 700,
-        },
-      },
-    },
-  },
-});
+export const theme = createAppTheme('dark');

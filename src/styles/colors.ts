@@ -1,4 +1,4 @@
-export const colors = {
+const sharedColors = {
   primary: {
     main: '#1976D2',
     light: '#42A5F5',
@@ -13,16 +13,6 @@ export const colors = {
     contrastText: '#121212',
   },
 
-  background: {
-    default: '#121212',
-    paper: '#1E1E1E',
-  },
-
-  text: {
-    primary: '#FFFFFF',
-    secondary: '#B3B3B3',
-  },
-
   success: {
     main: '#4CAF50',
   },
@@ -34,6 +24,38 @@ export const colors = {
   error: {
     main: '#F44336',
   },
+};
+
+export const lightColors = {
+  ...sharedColors,
+
+  background: {
+    default: '#F7F8FA',
+    paper: '#FFFFFF',
+  },
+
+  text: {
+    primary: '#1A1A1A',
+    secondary: '#666666',
+  },
+
+  divider: '#E0E0E0',
+};
+
+export const darkColors = {
+  ...sharedColors,
+
+  background: {
+    default: '#121212',
+    paper: '#1E1E1E',
+  },
+
+  text: {
+    primary: '#FFFFFF',
+    secondary: '#B3B3B3',
+  },
 
   divider: '#2C2C2C',
 };
+
+export const colors = darkColors;
