@@ -30,6 +30,8 @@ import { useCanaisVenda } from '../../canais-venda/hooks/useCanaisVenda';
 import { Loading } from '../../../components/common/Loading/Loading';
 import { Feedback } from '../../../components/common/Feedback/Feedback';
 
+import { ProdutoMateriaisSection } from '../components/ProdutoMateriaisSection';
+
 const produtoSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório.'),
   descricao: z.string().optional(),
@@ -395,6 +397,14 @@ export default function ProdutoFormPage() {
           </Button>
         </Box>
       </Box>
+
+      {isEditing && produtoId !== undefined && (
+        <>
+          <Divider sx={{ my: 4 }} />
+
+          <ProdutoMateriaisSection produtoId={produtoId} />
+        </>
+      )}
     </Box>
   );
 }
