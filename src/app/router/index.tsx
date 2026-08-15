@@ -35,6 +35,9 @@ import MaterialFormPage from '../../modules/materiais/pages/MateriaisFormPage';
 import LocaisListPage from '../../modules/locais/pages/LocaisListPages';
 import LocalFormPage from '../../modules/locais/pages/LocaisFormPage';
 
+import { PedidosListPage } from '../../modules/pedidos/pages/PedidosListPage';
+import { PedidoDetailsPage } from '../../modules/pedidos/pages/PedidoDetailsPage';
+
 export function AppRouter() {
   return (
     <Routes>
@@ -96,6 +99,10 @@ export function AppRouter() {
             <Route path="/locais" element={<LocaisListPage />} />
             <Route path="/locais/novo" element={<LocalFormPage />} />
             <Route path="/locais/:id" element={<LocalFormPage />} />
+
+            {/* PEDIDOS */}
+            <Route path="/pedidos" element={<PedidosListPage />} />
+            <Route path="/pedidos/:id" element={<PedidoDetailsPage />} />
           </Route>
         </Route>
       </Route>

@@ -16,6 +16,7 @@ import {
   Inventory2Outlined,
   CategoryOutlined,
   PointOfSaleOutlined,
+  ReceiptLongOutlined,
   BuildOutlined,
   LocationOnOutlined,
 } from '@mui/icons-material';
@@ -81,6 +82,16 @@ const menuGroups = [
         label: 'Locais',
         path: '/locais',
         icon: LocationOnOutlined,
+      },
+    ],
+  },
+  {
+    label: 'Operação',
+    items: [
+      {
+        label: 'Pedidos',
+        path: '/pedidos',
+        icon: ReceiptLongOutlined,
       },
     ],
   },
