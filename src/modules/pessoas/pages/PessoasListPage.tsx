@@ -9,6 +9,7 @@ import {
   Edit as EditIcon,
   Refresh as RefreshIcon,
   Block as BlockIcon,
+  Visibility as VisibilityIcon,
 } from '@mui/icons-material';
 
 import { useDeletePessoa, usePessoas } from '../hooks/usePessoas';
@@ -130,8 +131,14 @@ export default function PessoasListPage() {
       width: '120px',
       renderCell: (row: PessoaResponse) => (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
-          <Tooltip title="Editar">
+          <Tooltip title="Visualizar">
             <IconButton size="small" onClick={() => navigate(`/pessoas/${row.id}`)}>
+              <VisibilityIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Editar">
+            <IconButton size="small" onClick={() => navigate(`/pessoas/${row.id}/editar`)}>
               <EditIcon fontSize="small" />
             </IconButton>
           </Tooltip>
