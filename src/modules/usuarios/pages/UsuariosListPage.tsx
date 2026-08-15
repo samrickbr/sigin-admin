@@ -206,9 +206,7 @@ export default function UsuariosListPage() {
         open={!!usuarioParaInativar}
         title="Inativar usuário"
         message={
-          usuarioParaInativar
-            ? `Deseja inativar o usuário "${usuarioParaInativar.login}"?`
-            : undefined
+          usuarioParaInativar ? `Deseja inativar o usuário "${usuarioParaInativar.login}"?` : ''
         }
         onConfirm={handleInativar}
         onCancel={() => setUsuarioParaInativar(null)}

@@ -1,28 +1,44 @@
 const sharedColors = {
   primary: {
-    main: '#1976D2',
-    light: '#42A5F5',
-    dark: '#1565C0',
+    main: '#2563EB',
+    light: '#3B82F6',
+    dark: '#1D4ED8',
     contrastText: '#FFFFFF',
   },
 
   secondary: {
-    main: '#90CAF9',
-    light: '#BBDEFB',
-    dark: '#64B5F6',
-    contrastText: '#121212',
+    main: '#64748B',
+    light: '#94A3B8',
+    dark: '#475569',
+    contrastText: '#FFFFFF',
   },
 
   success: {
-    main: '#4CAF50',
+    main: '#16A34A',
+    light: '#22C55E',
+    dark: '#15803D',
+    contrastText: '#FFFFFF',
   },
 
   warning: {
-    main: '#FF9800',
+    main: '#D97706',
+    light: '#F59E0B',
+    dark: '#B45309',
+    contrastText: '#FFFFFF',
   },
 
   error: {
-    main: '#F44336',
+    main: '#DC2626',
+    light: '#EF4444',
+    dark: '#B91C1C',
+    contrastText: '#FFFFFF',
+  },
+
+  info: {
+    main: '#0284C7',
+    light: '#0EA5E9',
+    dark: '#0369A1',
+    contrastText: '#FFFFFF',
   },
 };
 
@@ -30,32 +46,34 @@ export const lightColors = {
   ...sharedColors,
 
   background: {
-    default: '#F7F8FA',
+    default: '#F5F7FA',
     paper: '#FFFFFF',
   },
 
   text: {
-    primary: '#1A1A1A',
-    secondary: '#666666',
+    primary: '#172033',
+    secondary: '#64748B',
+    disabled: '#94A3B8',
   },
 
-  divider: '#E0E0E0',
+  divider: '#E2E8F0',
 };
 
 export const darkColors = {
   ...sharedColors,
 
   background: {
-    default: '#121212',
-    paper: '#1E1E1E',
+    default: '#15171A',
+    paper: '#1E2125',
   },
 
   text: {
-    primary: '#FFFFFF',
-    secondary: '#B3B3B3',
+    primary: '#F1F3F5',
+    secondary: '#A1A7AE',
+    disabled: '#6F767D',
   },
 
-  divider: '#2C2C2C',
+  divider: '#30343A',
 };
 
 export const colors = darkColors;

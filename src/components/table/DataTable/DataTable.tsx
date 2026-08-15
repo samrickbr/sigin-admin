@@ -39,11 +39,24 @@ export function DataTable<T extends object>({
         boxShadow: 'none',
       }}
     >
-      <Table>
+      <Table
+        sx={{
+          width: '100%',
+          tableLayout: 'fixed',
+        }}
+      >
         <TableHead>
           <TableRow>
             {columns.map((column) => (
-              <TableCell key={String(column.id)} sx={{ width: column.width }}>
+              <TableCell
+                key={String(column.id)}
+                sx={{
+                  width: column.width,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
                 {column.label}
               </TableCell>
             ))}
@@ -64,7 +77,14 @@ export function DataTable<T extends object>({
                   const field = column.field ?? column.id;
 
                   return (
-                    <TableCell key={String(column.id)}>
+                    <TableCell
+                      key={String(column.id)}
+                      sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
                       {column.renderCell
                         ? column.renderCell(row)
                         : field in row

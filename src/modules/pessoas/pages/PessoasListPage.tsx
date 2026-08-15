@@ -217,9 +217,7 @@ export default function PessoasListPage() {
       <ConfirmDialog
         open={!!pessoaParaInativar}
         title="Inativar pessoa"
-        message={
-          pessoaParaInativar ? `Deseja inativar a pessoa "${pessoaParaInativar.nome}"?` : undefined
-        }
+        message={pessoaParaInativar ? `Deseja inativar a pessoa "${pessoaParaInativar.nome}"?` : ''}
         onConfirm={handleInativar}
         onCancel={() => setPessoaParaInativar(null)}
       />
