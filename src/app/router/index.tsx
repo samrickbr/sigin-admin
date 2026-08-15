@@ -38,6 +38,8 @@ import LocalFormPage from '../../modules/locais/pages/LocaisFormPage';
 import { PedidosListPage } from '../../modules/pedidos/pages/PedidosListPage';
 import { PedidoDetailsPage } from '../../modules/pedidos/pages/PedidoDetailsPage';
 
+import { PessoaDetailsPage } from '../../modules/pessoas/pages/PessoaDetailsPage';
+
 export function AppRouter() {
   return (
     <Routes>
@@ -54,8 +56,10 @@ export function AppRouter() {
           {/* PESSOAS */}
           <Route path="/pessoas" element={<PessoasListPage />} />
           <Route path="/pessoas/novo" element={<PessoaFormPage />} />
-          <Route path="/pessoas/:id" element={<PessoaFormPage />} />
-
+          <Route path="/pessoas/:id" element={<PessoaDetailsPage />} />
+          <Route path="/pessoas/:id/editar" element={<PessoaFormPage />} />
+          <Route path="/pessoas/:pessoaId/usuario/novo" element={<UsuarioFormPage />} />
+          <Route path="/pessoas/:pessoaId/usuario/:id" element={<UsuarioFormPage />} />
           {/* USUÁRIOS */}
           <Route path="/usuarios" element={<UsuariosListPage />} />
           <Route path="/usuarios/novo" element={<UsuarioFormPage />} />

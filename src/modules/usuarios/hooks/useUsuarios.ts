@@ -27,6 +27,17 @@ export function useUsuario(id?: number) {
   });
 }
 
+export function useUsuarioDaPessoa(pessoaId?: number) {
+  const usuariosQuery = useUsuarios();
+
+  return {
+    ...usuariosQuery,
+    data: pessoaId
+      ? usuariosQuery.data?.find((usuario) => usuario.pessoaId === pessoaId)
+      : undefined,
+  };
+}
+
 export function useCreateUsuario() {
   const queryClient = useQueryClient();
 

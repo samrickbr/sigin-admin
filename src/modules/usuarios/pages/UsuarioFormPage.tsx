@@ -9,6 +9,7 @@ import {
   Checkbox,
   FormControlLabel,
   MenuItem,
+  Paper,
   Stack,
   TextField,
   Typography,
@@ -19,22 +20,25 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { useCreateUsuario, useUsuario, useUpdateUsuario } from '../hooks/useUsuarios';
-
-import { usePessoas } from '../../pessoas/hooks/usePessoas';
-
+import { usePessoa, usePessoas } from '../../pessoas/hooks/usePessoas';
 import { Loading } from '../../../components/common/Loading/Loading';
 import { Feedback } from '../../../components/common/Feedback/Feedback';
 
-const usuarioSchema = z
-  .object({
-    pessoaId: z.number().positive('Selecione uma pessoa.'),
-    login: z.string().min(1, 'Login é obrigatório.'),
-    senha: z.string(),
-    confirmarSenha: z.string(),
-    ativo: z.boolean(),
-  })
-  .superRefine((data, ctx) => {
-    // No cadastro, senha e confirmação são obrigatórias.
+const usuarioFieldsSchema = z.object({
+  pessoaId: z.number().positive('Selecione uma pessoa.'),
+  login: z.string().min(1, 'Login é obrigatório.'),
+  senha: z.string(),
+  confirmarSenha: z.string(),
+  ativo: z.boolean(),
+});
+
+function createUsuarioSchema(isEditing: boolean) {
+  return usuarioFieldsSchema.superRefine((data, ctx) => {
+    // Na edição, campos vazios mantêm a senha atual.
+    if (isEditing && !data.senha && !data.confirmarSenha) {
+      return;
+    }
+
     if (!data.senha) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -59,23 +63,24 @@ const usuarioSchema = z
       });
     }
   });
+}
 
-type UsuarioFormData = z.infer<typeof usuarioSchema>;
+type UsuarioFormData = z.infer<typeof usuarioFieldsSchema>;
 
 export default function UsuarioFormPage() {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const { id, pessoaId } = useParams<{ id: string; pessoaId: string }>();
 
   const usuarioId = id ? Number(id) : undefined;
   const isEditing = !!usuarioId;
+  const contextualPessoaId = pessoaId ? Number(pessoaId) : undefined;
+  const isContextual =
+    contextualPessoaId !== undefined && Number.isInteger(contextualPessoaId) && contextualPessoaId > 0;
+  const returnPath = isContextual ? `/pessoas/${contextualPessoaId}` : '/usuarios';
 
-  const {
-    data: usuario,
-    isLoading: isLoadingUsuario,
-    isError: isUsuarioError,
-  } = useUsuario(usuarioId);
-
-  const { data: pessoas, isLoading: isLoadingPessoas } = usePessoas();
+  const usuarioQuery = useUsuario(usuarioId);
+  const pessoaQuery = usePessoa(isContextual ? contextualPessoaId : undefined);
+  const pessoasQuery = usePessoas(!isContextual);
 
   const createUsuario = useCreateUsuario();
   const updateUsuario = useUpdateUsuario();
@@ -91,7 +96,7 @@ export default function UsuarioFormPage() {
     reset,
     formState: { errors },
   } = useForm<UsuarioFormData>({
-    resolver: zodResolver(usuarioSchema),
+    resolver: zodResolver(createUsuarioSchema(isEditing)),
     defaultValues: {
       pessoaId: 0,
       login: '',
@@ -102,18 +107,27 @@ export default function UsuarioFormPage() {
   });
 
   useEffect(() => {
-    if (!usuario) {
+    if (usuarioQuery.data) {
+      reset({
+        pessoaId: usuarioQuery.data.pessoaId,
+        login: usuarioQuery.data.login,
+        senha: '',
+        confirmarSenha: '',
+        ativo: usuarioQuery.data.ativo,
+      });
       return;
     }
 
-    reset({
-      pessoaId: usuario.pessoaId,
-      login: usuario.login,
-      senha: '',
-      confirmarSenha: '',
-      ativo: usuario.ativo,
-    });
-  }, [usuario, reset]);
+    if (isContextual && contextualPessoaId !== undefined) {
+      reset({
+        pessoaId: contextualPessoaId,
+        login: '',
+        senha: '',
+        confirmarSenha: '',
+        ativo: true,
+      });
+    }
+  }, [contextualPessoaId, isContextual, reset, usuarioQuery.data]);
 
   const onSubmit = async (data: UsuarioFormData) => {
     try {
@@ -121,70 +135,72 @@ export default function UsuarioFormPage() {
         await updateUsuario.mutateAsync({
           id: usuarioId,
           data: {
-            pessoaId: usuario!.pessoaId,
-            login: usuario!.login,
+            pessoaId: usuarioQuery.data!.pessoaId,
+            login: usuarioQuery.data!.login,
             senha: data.senha,
             ativo: data.ativo,
           },
         });
 
-        setFeedback({
-          message: 'Usuário atualizado com sucesso.',
-          severity: 'success',
-        });
+        setFeedback({ message: 'Usuário atualizado com sucesso.', severity: 'success' });
       } else {
         await createUsuario.mutateAsync({
-          pessoaId: data.pessoaId,
+          pessoaId: isContextual ? contextualPessoaId! : data.pessoaId,
           login: data.login,
           senha: data.senha,
           ativo: data.ativo,
         });
 
-        setFeedback({
-          message: 'Usuário cadastrado com sucesso.',
-          severity: 'success',
-        });
+        setFeedback({ message: 'Usuário cadastrado com sucesso.', severity: 'success' });
       }
 
-      setTimeout(() => {
-        navigate('/usuarios');
-      }, 500);
+      setTimeout(() => navigate(returnPath), 500);
     } catch (error) {
       const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+      const apiMessage = axios.isAxiosError(error) ? error.response?.data?.mensagem : undefined;
 
       let message = isEditing
         ? 'Não foi possível atualizar o usuário.'
         : 'Não foi possível cadastrar o usuário.';
 
-      if (!isEditing && status === 409) {
-        message = 'A pessoa selecionada já possui um usuário.';
-      }
-
-      if (status === 400) {
+      if (apiMessage) {
+        message = apiMessage;
+      } else if (status === 400) {
         message = 'Os dados informados são inválidos.';
-      }
-
-      if (status === 403) {
+      } else if (status === 403) {
         message = 'Você não possui permissão para realizar esta operação.';
+      } else if (status === 409) {
+        message = 'Não foi possível concluir a operação.';
       }
 
-      setFeedback({
-        message,
-        severity: 'error',
-      });
+      setFeedback({ message, severity: 'error' });
     }
   };
 
-  if (isLoadingUsuario || isLoadingPessoas) {
+  if (
+    usuarioQuery.isLoading ||
+    (!isContextual && pessoasQuery.isLoading) ||
+    (isContextual && pessoaQuery.isLoading)
+  ) {
     return <Loading />;
   }
 
-  if (isEditing && isUsuarioError) {
+  if (isContextual && (pessoaQuery.isError || !pessoaQuery.data)) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error">Não foi possível carregar os dados da pessoa.</Alert>
+        <Button sx={{ mt: 2 }} variant="outlined" onClick={() => navigate('/pessoas')}>
+          Voltar
+        </Button>
+      </Box>
+    );
+  }
+
+  if (isEditing && usuarioQuery.isError) {
     return (
       <Box sx={{ p: 3 }}>
         <Alert severity="error">Não foi possível carregar os dados do usuário.</Alert>
-
-        <Button sx={{ mt: 2 }} variant="outlined" onClick={() => navigate('/usuarios')}>
+        <Button sx={{ mt: 2 }} variant="outlined" onClick={() => navigate(returnPath)}>
           Voltar
         </Button>
       </Box>
@@ -192,54 +208,71 @@ export default function UsuarioFormPage() {
   }
 
   const isSubmitting = createUsuario.isPending || updateUsuario.isPending;
+  const title = isContextual && !isEditing ? 'Criar acesso ao sistema' : isEditing ? 'Editar Usuário' : 'Novo Usuário';
+  const description = isContextual && !isEditing
+    ? 'Crie as credenciais de acesso para esta pessoa.'
+    : isEditing
+      ? 'Atualize a senha ou o status do usuário.'
+      : 'Cadastre um novo usuário vinculado a uma pessoa.';
 
   return (
     <Box sx={{ p: 3, maxWidth: 900 }}>
       <Box sx={{ mb: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          {isEditing ? 'Editar Usuário' : 'Novo Usuário'}
+          {title}
         </Typography>
-
         <Typography variant="body2" color="text.secondary">
-          {isEditing
-            ? 'Atualize a senha ou o status do usuário.'
-            : 'Cadastre um novo usuário vinculado a uma pessoa.'}
+          {description}
         </Typography>
       </Box>
 
       <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
         <Stack spacing={2.5}>
-          <Controller
-            name="pessoaId"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                value={field.value || ''}
-                onChange={(event) => field.onChange(Number(event.target.value))}
-                select
-                label="Pessoa"
-                fullWidth
-                required
-                disabled={isEditing}
-                error={!!errors.pessoaId}
-                helperText={
-                  errors.pessoaId?.message ??
-                  (isEditing ? 'A pessoa vinculada não pode ser alterada.' : undefined)
-                }
-              >
-                <MenuItem value="">Selecione uma pessoa</MenuItem>
-
-                {pessoas
-                  ?.filter((pessoa) => pessoa.ativo)
-                  .map((pessoa) => (
-                    <MenuItem key={pessoa.id} value={pessoa.id}>
-                      {pessoa.nome} — {pessoa.documento}
-                    </MenuItem>
-                  ))}
-              </TextField>
-            )}
-          />
+          {isContextual && pessoaQuery.data ? (
+            <Paper variant="outlined" sx={{ p: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                Pessoa
+              </Typography>
+              <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                {pessoaQuery.data.nome}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                {pessoaQuery.data.tipoDocumento}: {pessoaQuery.data.documento} ·{' '}
+                {pessoaQuery.data.ativo ? 'Ativa' : 'Inativa'}
+              </Typography>
+            </Paper>
+          ) : (
+            <Controller
+              name="pessoaId"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  value={field.value || ''}
+                  onChange={(event) => field.onChange(Number(event.target.value))}
+                  select
+                  label="Pessoa"
+                  fullWidth
+                  required
+                  disabled={isEditing}
+                  error={!!errors.pessoaId}
+                  helperText={
+                    errors.pessoaId?.message ??
+                    (isEditing ? 'A pessoa vinculada não pode ser alterada.' : undefined)
+                  }
+                >
+                  <MenuItem value="">Selecione uma pessoa</MenuItem>
+                  {pessoasQuery.data
+                    ?.filter((pessoa) => pessoa.ativo)
+                    .map((pessoa) => (
+                      <MenuItem key={pessoa.id} value={pessoa.id}>
+                        {pessoa.nome} — {pessoa.documento}
+                      </MenuItem>
+                    ))}
+                </TextField>
+              )}
+            />
+          )}
 
           <Controller
             name="login"
@@ -252,10 +285,7 @@ export default function UsuarioFormPage() {
                 required
                 disabled={isEditing}
                 error={!!errors.login}
-                helperText={
-                  errors.login?.message ??
-                  (isEditing ? 'O login do usuário não pode ser alterado.' : undefined)
-                }
+                helperText={errors.login?.message ?? (isEditing ? 'O login não pode ser alterado.' : undefined)}
               />
             )}
           />
@@ -266,15 +296,12 @@ export default function UsuarioFormPage() {
             render={({ field }) => (
               <TextField
                 {...field}
-                label={isEditing ? 'Nova Senha' : 'Senha'}
+                label={isEditing ? 'Nova senha' : 'Senha'}
                 type="password"
                 fullWidth
                 required={!isEditing}
                 error={!!errors.senha}
-                helperText={
-                  errors.senha?.message ??
-                  (isEditing ? 'Deixe em branco para manter a senha atual.' : undefined)
-                }
+                helperText={errors.senha?.message ?? (isEditing ? 'Deixe em branco para manter a senha atual.' : undefined)}
               />
             )}
           />
@@ -285,7 +312,7 @@ export default function UsuarioFormPage() {
             render={({ field }) => (
               <TextField
                 {...field}
-                label="Confirmar Senha"
+                label="Confirmar senha"
                 type="password"
                 fullWidth
                 required={!isEditing}
@@ -301,12 +328,7 @@ export default function UsuarioFormPage() {
               control={control}
               render={({ field }) => (
                 <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={field.value}
-                      onChange={(event) => field.onChange(event.target.checked)}
-                    />
-                  }
+                  control={<Checkbox checked={field.value} onChange={(event) => field.onChange(event.target.checked)} />}
                   label="Usuário ativo"
                 />
               )}
@@ -315,24 +337,12 @@ export default function UsuarioFormPage() {
 
           {feedback && <Feedback message={feedback.message} severity={feedback.severity} />}
 
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: 1,
-              pt: 1,
-            }}
-          >
-            <Button
-              variant="outlined"
-              onClick={() => navigate('/usuarios')}
-              disabled={isSubmitting}
-            >
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, pt: 1 }}>
+            <Button variant="outlined" onClick={() => navigate(returnPath)} disabled={isSubmitting}>
               Cancelar
             </Button>
-
             <Button type="submit" variant="contained" disabled={isSubmitting}>
-              {isSubmitting ? 'Salvando...' : isEditing ? 'Salvar Alterações' : 'Cadastrar Usuário'}
+              {isSubmitting ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Cadastrar usuário'}
             </Button>
           </Box>
         </Stack>

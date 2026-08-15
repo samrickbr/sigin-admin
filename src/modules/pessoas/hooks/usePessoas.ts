@@ -17,10 +17,11 @@ export const PESSOAS_QUERY_KEY = ['pessoas'];
 
 export const TIPOS_PESSOA_QUERY_KEY = ['tipos-pessoa'];
 
-export function usePessoas() {
+export function usePessoas(enabled = true) {
   return useQuery({
     queryKey: PESSOAS_QUERY_KEY,
     queryFn: getPessoas,
+    enabled,
   });
 }
 
