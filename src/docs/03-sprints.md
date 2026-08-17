@@ -780,6 +780,83 @@ Não foram realizadas alterações no Core durante a execução da Sprint Front.
 
 ---
 
+# Sprint F11.2 — Usuário → Perfil
+
+## Status
+
+**Concluída.**
+
+## Objetivo
+
+Permitir administrar o relacionamento Usuário → Perfil diretamente a partir do contexto do Usuário, preservando os módulos independentes e sem fundir as entidades.
+
+## Implementação Front
+
+* seção contextual de Perfis no `UsuarioFormPage` durante a edição do Usuário;
+* listagem dos perfis vinculados;
+* atribuição de perfil existente sem solicitar novamente o Usuário;
+* remoção de vínculo com confirmação;
+* seleção limitada a perfis ativos ainda não vinculados, evitando duplicidade na interface;
+* suporte a múltiplos perfis por Usuário;
+* preservação da apresentação de perfis inativos já vinculados;
+* estados de loading, vazio, erro, sucesso e processamento;
+* `ConfirmDialog` evoluído com estado opcional de confirmação em andamento para a remoção.
+
+Arquivos principais:
+
+```text
+src/modules/usuarios/services/usuarioPerfisService.ts
+src/modules/usuarios/hooks/useUsuarioPerfis.ts
+src/modules/usuarios/components/UsuarioPerfisSection.tsx
+src/modules/usuarios/pages/UsuarioFormPage.tsx
+src/components/common/ConfirmDialog/ConfirmDialog.tsx
+```
+
+## Contratos utilizados
+
+```text
+GET    /usuarios/{usuarioId}/perfis
+POST   /usuarios/{usuarioId}/perfis/{perfilId}
+DELETE /usuarios/{usuarioId}/perfis/{perfilId}
+```
+
+O relacionamento permanece separado de `UsuarioRequest` e `UsuarioResponse`; não foi adicionado `perfilId` ao Usuário.
+
+## Dependência e ajuste do Core
+
+Para o funcionamento correto da F11.2, o Core corrigiu a consulta de `UsuarioPerfilRepository`: o uso de `INNER JOIN` nas permissões impedia o retorno de perfis vinculados sem permissões.
+
+A consulta foi ajustada para utilizar `SELECT DISTINCT` com `LEFT JOIN FETCH` nas permissões. Essa correção pertence ao Core e foi consumida pelo Front por meio dos contratos existentes.
+
+## Validações realizadas
+
+### Front
+
+* `npm run lint` aprovado;
+* `npm run build` aprovado;
+* `git diff --check` aprovado;
+* testes manuais aprovados para Usuário sem perfil, com perfil, múltiplos perfis, atribuição, remoção, perfil já vinculado, perfil inativo, cancelamento, loading, feedback, fluxo contextual Pessoa → Usuário → Perfil e fluxo independente de Perfis.
+
+### Core
+
+* correção compilada com `BUILD SUCCESS`;
+* os testes automatizados possuem falhas preexistentes relacionadas a seed/dados;
+* esses testes não foram corrigidos por estarem fora do escopo da F11.2.
+
+## Pendência futura
+
+Usuário → edição sem alteração de senha permanece como evolução futura, fora da F11.2.
+
+Atualmente o Front pode enviar `senha: ""`, que o Core rejeita. A evolução deverá separar claramente:
+
+* criação: senha obrigatória;
+* edição sem alteração: não enviar senha vazia;
+* alteração de senha: operação explícita.
+
+## Próxima etapa
+
+F11.3 — Perfil → Permissões: administrar permissões a partir do contexto de um Perfil.
+
 # Backlog Posterior
 
 As próximas Sprints permanecem sujeitas à definição e revisão do Roadmap Front.

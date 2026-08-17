@@ -13,9 +13,17 @@ interface ConfirmDialogProps {
   message?: string;
   onConfirm: () => void;
   onCancel: () => void;
+  isConfirming?: boolean;
 }
 
-export function ConfirmDialog({ open, title, message, onConfirm, onCancel }: ConfirmDialogProps) {
+export function ConfirmDialog({
+  open,
+  title,
+  message,
+  onConfirm,
+  onCancel,
+  isConfirming = false,
+}: ConfirmDialogProps) {
   return (
     <Dialog open={open} onClose={onCancel} fullWidth maxWidth="xs">
       <DialogTitle sx={{ fontWeight: 700 }}>{title}</DialogTitle>
@@ -25,12 +33,12 @@ export function ConfirmDialog({ open, title, message, onConfirm, onCancel }: Con
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button variant="text" onClick={onCancel}>
+        <Button variant="text" onClick={onCancel} disabled={isConfirming}>
           Cancelar
         </Button>
 
-        <Button variant="contained" onClick={onConfirm}>
-          Confirmar
+        <Button variant="contained" onClick={onConfirm} disabled={isConfirming}>
+          {isConfirming ? 'Removendo...' : 'Confirmar'}
         </Button>
       </DialogActions>
     </Dialog>

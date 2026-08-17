@@ -213,10 +213,8 @@ As Sprints Front já executadas consolidaram progressivamente:
 * manutenção de Canais de Venda;
 * integração Produto × Categoria;
 * integração Produto × Canal.
-
-A F05 — Produtos, Categorias e Canais de Venda encontra-se concluída funcionalmente.
-
-O estado detalhado e o histórico de cada Sprint devem permanecer registrados no documento de Sprints.
+* fluxo administrativo contextual Pessoa → Usuário;
+* fluxo administrativo contextual Usuário → Perfil.
 
 ---
 

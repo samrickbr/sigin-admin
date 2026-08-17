@@ -34,7 +34,7 @@ Este documento é um mapa de referência e deve ser atualizado ao final de cada 
 | Usuários                 | Sim  | `/usuarios`                              | Sim     | FRONT COMPLETO       | CRUD administrativo                                                                     |
 | Perfis                   | Sim  | `/perfis`                                | Sim     | FRONT COMPLETO       | Administração de perfis implementada na F06                                             |
 | Permissões               | Sim  | `/permissoes`                            | Sim     | FRONT PARCIAL        | Permissões consumidas pela autorização e disponibilizadas para configuração de Perfil × Permissão |
-| Usuário × Perfil         | Sim  | `/usuarios/{usuarioId}/perfis`           | Sim     | FRONT COMPLETO       | Associação disponível no fluxo administrativo de usuários                               |
+| Usuário × Perfil         | Sim  | `/usuarios/{usuarioId}/perfis`           | Sim     | FRONT COMPLETO       | Associação contextual no Usuário, concluída na F11.2                                    |
 | Perfil × Permissão       | Sim  | `/perfil-permissoes`                     | Sim     | FRONT COMPLETO       | Administração da associação implementada na F06                                          |
 | Pessoas                  | Sim  | `/pessoas`                               | Sim     | FRONT COMPLETO       | CRUD administrativo                                                                     |
 | Tipos de Pessoa          | Sim  | `/tipos-pessoa`                          | Parcial | FRONT PARCIAL        | Consumido pelo módulo de Pessoas; sem módulo/página própria identificada                |
@@ -106,10 +106,21 @@ Front:
 - `UsuarioFormPage`
 - `usuariosService`
 - `useUsuarios`
+- `usuarioPerfisService`
+- `useUsuarioPerfis`
+- `UsuarioPerfisSection`
 
 Status:
 
 `FRONT COMPLETO`
+
+Particularidade:
+
+O relacionamento permite múltiplos perfis por Usuário. A F11.2 administra os vínculos no contexto do Usuário, oferecendo somente perfis ativos ainda não vinculados para nova atribuição e preservando a visualização de perfis inativos já vinculados.
+
+Dependência de contrato corrigida no Core:
+
+`UsuarioPerfilRepository` passou a utilizar `SELECT DISTINCT` com `LEFT JOIN FETCH` nas permissões. Antes, um `INNER JOIN` impedia o retorno de perfis vinculados sem permissões. O ajuste pertence ao Core e garante o retorno correto de `PerfilResponse[]` em `GET /usuarios/{usuarioId}/perfis`.
 
 ---
 

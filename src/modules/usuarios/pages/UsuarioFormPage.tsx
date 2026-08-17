@@ -20,6 +20,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { useCreateUsuario, useUsuario, useUpdateUsuario } from '../hooks/useUsuarios';
+import { UsuarioPerfisSection } from '../components/UsuarioPerfisSection';
 import { usePessoa, usePessoas } from '../../pessoas/hooks/usePessoas';
 import { Loading } from '../../../components/common/Loading/Loading';
 import { Feedback } from '../../../components/common/Feedback/Feedback';
@@ -333,6 +334,10 @@ export default function UsuarioFormPage() {
                 />
               )}
             />
+          )}
+
+          {isEditing && usuarioId && usuarioQuery.data && (
+            <UsuarioPerfisSection usuarioId={usuarioId} usuarioLogin={usuarioQuery.data.login} />
           )}
 
           {feedback && <Feedback message={feedback.message} severity={feedback.severity} />}
