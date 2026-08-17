@@ -8,6 +8,7 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { EmptyState, Loading } from '../../../components/common';
 import { usePessoa } from '../hooks/usePessoas';
 import { useUsuarioDaPessoa } from '../../usuarios/hooks/useUsuarios';
+import { useUsuarioPerfis } from '../../usuarios/hooks/useUsuarioPerfis';
 
 export function PessoaDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +18,8 @@ export function PessoaDetailsPage() {
 
   const pessoaQuery = usePessoa(pessoaId);
   const usuarioQuery = useUsuarioDaPessoa(pessoaId);
+
+  const usuarioPerfisQuery = useUsuarioPerfis(usuarioQuery.data?.id);
 
   if (pessoaQuery.isLoading) {
     return <Loading />;
@@ -150,11 +153,44 @@ export function PessoaDetailsPage() {
           >
             <Box>
               <Typography>{usuario.login}</Typography>
-              <Chip
-                label={usuario.ativo ? 'Ativo' : 'Inativo'}
-                size="small"
-                sx={{ mt: 0.5 }}
-              />
+
+              <Chip label={usuario.ativo ? 'Ativo' : 'Inativo'} size="small" sx={{ mt: 0.5 }} />
+
+              <Box sx={{ mt: 1.5 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Perfil
+                </Typography>
+
+                {usuarioPerfisQuery.isLoading ? (
+                  <Typography variant="body2" color="text.secondary">
+                    Carregando...
+                  </Typography>
+                ) : usuarioPerfisQuery.isError ? (
+                  <Typography variant="body2" color="error">
+                    Não foi possível carregar o perfil.
+                  </Typography>
+                ) : usuarioPerfisQuery.data?.length ? (
+                  <Box sx={{ mt: 0.5 }}>
+                    {usuarioPerfisQuery.data.map((perfil) => (
+                      <Box
+                        key={perfil.id}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1,
+                          mb: 0.5,
+                        }}
+                      >
+                        <Typography>{perfil.nome}</Typography>
+
+                        {!perfil.ativo && <Chip label="Inativo" size="small" />}
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography color="text.secondary">Nenhum perfil vinculado.</Typography>
+                )}
+              </Box>
             </Box>
 
             <Button
