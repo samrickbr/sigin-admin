@@ -881,3 +881,252 @@ Questões de arquitetura ou regras de negócio identificadas durante a evoluçã
 A F05 consolidou o Backoffice administrativo de Produtos, Categorias e Canais de Venda sem alterar a arquitetura comercial definida pelo Core.
 
 O Front permanece responsável pela experiência administrativa e pelo consumo dos contratos disponibilizados pelo Core, enquanto as regras de negócio e decisões de domínio permanecem sob responsabilidade do Core.
+
+## BASELINE OPERACIONAL — 18/08/2026
+
+### Status
+
+O ecossistema SIGIN atingiu o primeiro baseline operacional integrado em ambiente online.
+
+#### SIGIN Core
+
+* Core online em produção.
+* PostgreSQL online e conectado.
+* Flyway operacional.
+* `ddl-auto: validate`.
+* Autenticação JWT operacional.
+* `POST /auth/login` validado.
+* `GET /auth/me` validado.
+* Usuário administrativo bootstrap criado pela migration `V43__bootstrap_usuario_admin.sql`.
+* Usuário `admin` ativo.
+* Perfil `Administrador` associado.
+* Pessoa `Administrador` associada.
+* Pessoas funcionando.
+* Produtos funcionando.
+* Categorias disponíveis.
+* Canais de venda disponíveis.
+* Estrutura de IAM existente e funcional.
+
+### SIGIN Admin
+
+* Frontend online em produção via Vercel.
+* Integração com Core em produção validada.
+* URL da API configurada através de variável de ambiente.
+* Login integrado ao Core.
+* Recuperação de identidade através de `/auth/me`.
+* Pessoas funcionando.
+* Produtos funcionando.
+* Navegação para criação e edição de produtos funcionando.
+* Cadastros administrativos básicos operacionais.
+
+### Delivery
+
+* Frontend Delivery online.
+* Backend Delivery online.
+* Infraestrutura de execução disponível.
+* Integração operacional completa com o Core ainda não concluída.
+
+### Autorização temporária
+
+Durante a estabilização do ambiente operacional, as restrições de permissão sobre Produtos foram temporariamente removidas dos fluxos operacionais.
+
+A estrutura de IAM permanece existente no Core.
+
+A decisão temporária é:
+
+* não bloquear Produtos por `PRODUTO_VISUALIZAR`;
+* não bloquear temporariamente os fluxos administrativos básicos por permissões de domínio;
+* preservar a infraestrutura de autenticação e autorização para evolução posterior.
+
+Essa decisão não representa a remoção definitiva do IAM.
+
+A autorização por domínio deverá ser reintroduzida após a estabilização da integração entre Core, Admin e Delivery.
+
+---
+
+# PRÓXIMA ETAPA — INTEGRAÇÃO BACK DELIVERY × CORE
+
+## Objetivo
+
+Integrar o Backend Delivery ao SIGIN Core, tornando o Core a autoridade de domínio para os dados e regras comerciais compartilhados.
+
+A integração deve preservar a arquitetura definida no SIGIN:
+
+```
+SIGIN Core
+    │
+    ├── Pessoas
+    ├── Usuários
+    ├── Perfis
+    ├── Permissões
+    ├── Produtos
+    ├── Categorias
+    ├── Canais de Venda
+    ├── Produto × Canal
+    ├── Estoque
+    └── demais regras de domínio
+            │
+            ▼
+      Backend Delivery
+            │
+            ▼
+      Frontend Delivery
+```
+
+## Regra arquitetural
+
+O Core permanece como **autoridade de domínio**.
+
+O Backend Delivery não deve duplicar regras comerciais já existentes no Core.
+
+Quando uma informação ou regra já pertence ao Core, o Delivery deve consumi-la através da API do Core.
+
+### O Delivery poderá possuir
+
+* lógica específica da operação de Delivery;
+* controle de fluxo operacional;
+* composição da experiência do Delivery;
+* integrações específicas do canal;
+* consultas e projeções necessárias à operação.
+
+### O Delivery não deverá assumir como autoridade
+
+* cadastro oficial de produtos;
+* cadastro oficial de categorias;
+* cadastro oficial de canais de venda;
+* preços comerciais cuja autoridade esteja no Core;
+* regras comerciais existentes no Core;
+* identidade administrativa;
+* permissões de domínio;
+* demais informações cuja autoridade já esteja definida no Core.
+
+---
+
+# PLANO DA INTEGRAÇÃO BACK DELIVERY × CORE
+
+A implementação será conduzida em etapas.
+
+## Etapa 1 — Auditoria do Backend Delivery
+
+Antes de alterar código:
+
+* identificar endpoints existentes;
+* identificar entidades;
+* identificar repositories;
+* identificar serviços;
+* identificar regras de negócio;
+* identificar dados atualmente mantidos localmente;
+* identificar chamadas já existentes ao Core;
+* identificar duplicações de domínio;
+* identificar contratos utilizados pelo Front Delivery.
+
+## Etapa 2 — Mapeamento Core × Delivery
+
+Para cada recurso utilizado pelo Delivery:
+
+```
+Recurso
+→ autoridade
+→ endpoint Core
+→ contrato Core
+→ uso atual no Delivery
+→ gap
+→ ação necessária
+```
+
+Prioridade inicial:
+
+1. autenticação/identidade;
+2. produtos;
+3. categorias;
+4. canais de venda;
+5. Produto × Canal;
+6. preços;
+7. disponibilidade;
+8. estoque;
+9. pedidos;
+10. produção/operação.
+
+## Etapa 3 — Contratos de integração
+
+Definir somente os contratos necessários.
+
+Evitar criar endpoints duplicados no Core quando já existir contrato adequado.
+
+Quando houver necessidade real de evolução do Core, a alteração deverá ser feita no Core primeiro e depois consumida pelo Delivery.
+
+## Etapa 4 — Integração
+
+Implementar o consumo do Core no Backend Delivery.
+
+Prioridade:
+
+```
+Core
+ ↓
+Backend Delivery
+ ↓
+Frontend Delivery
+```
+
+## Etapa 5 — Fluxo operacional
+
+Validar o fluxo completo:
+
+```
+Produto cadastrado no Admin
+        ↓
+SIGIN Core
+        ↓
+Delivery consulta produto
+        ↓
+Cliente realiza operação
+        ↓
+Backend Delivery
+        ↓
+Core
+        ↓
+Pedido
+        ↓
+Produção
+        ↓
+Finalização
+```
+
+## Critério de conclusão
+
+A integração será considerada concluída quando o Delivery operar utilizando o Core como autoridade, sem depender de cadastros duplicados ou regras comerciais paralelas para os domínios compartilhados.
+
+---
+
+# REGRA PARA A PRÓXIMA SPRINT
+
+A próxima etapa não deve começar criando migrations ou novos endpoints por tentativa.
+
+Primeiro:
+
+**Auditar → Mapear → Decidir → Implementar → Validar.**
+
+O objetivo imediato é tornar o **Back Delivery funcionalmente integrado ao SIGIN Core**, mantendo o Core como autoridade central do ecossistema.
+
+---
+
+## BASELINE DE REFERÊNCIA
+
+A partir de 18/08/2026, este estado passa a ser considerado o baseline operacional do SIGIN:
+
+```
+CORE             🟢 ONLINE
+ADMIN FRONT      🟢 ONLINE
+DELIVERY FRONT   🟢 ONLINE
+DELIVERY BACK    🟢 ONLINE
+
+AUTH/JWT         🟢
+AUTH/ME          🟢
+PESSOAS          🟢
+PRODUTOS         🟢
+BANCO/Flyway     🟢
+
+DELIVERY × CORE  🟡 PRÓXIMA ETAPA
+
+```
