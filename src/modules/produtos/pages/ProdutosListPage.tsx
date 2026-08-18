@@ -1,6 +1,14 @@
 ﻿import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Chip, IconButton, TextField, Tooltip, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Chip,
+  IconButton,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import {
   Add as AddIcon,
   Refresh as RefreshIcon,
@@ -61,14 +69,14 @@ export default function ProdutosListPage() {
   }
 
   if (produtosQuery.isError) {
-    return <Feedback severity="error" message="NÃ£o foi possÃ­vel carregar os produtos." />;
+    return <Feedback severity="error" message="Não foi possível carregar os produtos." />;
   }
 
   const columns = [
     {
       id: 'codigo',
       field: 'codigo' as keyof ProdutoResponse,
-      label: 'CÃ³digo',
+      label: 'Código',
     },
     {
       id: 'nome',
@@ -83,7 +91,7 @@ export default function ProdutosListPage() {
     {
       id: 'precoVenda',
       field: 'precoVenda' as keyof ProdutoResponse,
-      label: 'PreÃ§o padrÃ£o',
+      label: 'Preço padrão',
       renderCell: (produto: ProdutoResponse) =>
         produto.precoVenda != null
           ? produto.precoVenda.toLocaleString('pt-BR', {
@@ -99,7 +107,7 @@ export default function ProdutosListPage() {
       renderCell: (produto: ProdutoResponse) => (
         <Chip
           size="small"
-          label={produto.disponivelVenda ? 'DisponÃ­vel' : 'IndisponÃ­vel'}
+          label={produto.disponivelVenda ? 'Disponível' : 'Indisponível'}
           color={produto.disponivelVenda ? 'success' : 'default'}
         />
       ),
@@ -107,7 +115,7 @@ export default function ProdutosListPage() {
     {
       id: 'ativo',
       field: 'ativo' as keyof ProdutoResponse,
-      label: 'SituaÃ§Ã£o',
+      label: 'Situação',
       renderCell: (produto: ProdutoResponse) => (
         <Chip
           size="small"
@@ -118,17 +126,24 @@ export default function ProdutosListPage() {
     },
     {
       id: 'acoes',
-      label: 'AÃ§Ãµes',
+      label: 'Ações',
       renderCell: (produto: ProdutoResponse) => (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           <Tooltip title="Editar">
-            <IconButton size="small" onClick={() => navigate(`/produtos/${produto.id}/editar`)}>
+            <IconButton
+              size="small"
+              onClick={() => navigate(`/produtos/${produto.id}/editar`)}
+            >
               <EditIcon fontSize="small" />
             </IconButton>
           </Tooltip>
 
           <Tooltip title="Inativar">
-            <IconButton size="small" color="error" onClick={() => setProdutoParaExcluir(produto)}>
+            <IconButton
+              size="small"
+              color="error"
+              onClick={() => setProdutoParaExcluir(produto)}
+            >
               <DeleteOutlinedIcon fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -152,7 +167,10 @@ export default function ProdutosListPage() {
 
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Tooltip title="Atualizar">
-            <IconButton onClick={() => produtosQuery.refetch()} disabled={produtosQuery.isFetching}>
+            <IconButton
+              onClick={() => produtosQuery.refetch()}
+              disabled={produtosQuery.isFetching}
+            >
               <RefreshIcon />
             </IconButton>
           </Tooltip>
@@ -170,7 +188,7 @@ export default function ProdutosListPage() {
       <TextField
         fullWidth
         label="Buscar produto"
-        placeholder="CÃ³digo, nome ou categoria"
+        placeholder="Código, nome ou categoria"
         value={search}
         onChange={(event) => setSearch(event.target.value)}
         sx={{ mb: 2 }}
