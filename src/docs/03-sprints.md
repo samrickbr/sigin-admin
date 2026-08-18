@@ -573,8 +573,9 @@ O contrato atualizado de Produto disponibiliza `categoriaId` em `ProdutoResponse
 
 Durante a edição de Produto, o Front utiliza diretamente:
 
-```text
+```
 ProdutoResponse.categoriaId
+
 ```
 
 para preencher o campo de Categoria.
@@ -583,8 +584,9 @@ O Front não infere a categoria pelo nome e não realiza chamadas adicionais par
 
 O valor selecionado é enviado posteriormente em:
 
-```text
+```
 ProdutoRequest.categoriaId
+
 ```
 
 ---
@@ -593,13 +595,14 @@ ProdutoRequest.categoriaId
 
 A disponibilidade do Produto em um CanalVenda continua sendo representada por:
 
-```text
+```
 ProdutoCanal
+
 ```
 
 O fluxo administrativo permanece:
 
-```text
+```
 Produto
    ↓
 CanalVenda
@@ -607,6 +610,7 @@ CanalVenda
 ProdutoCanal
    ↓
 Produto disponível naquele canal
+
 ```
 
 O Produto permanece como cadastro central e único.
@@ -625,9 +629,10 @@ A antiga `ProdutoVendaPage.tsx` não faz parte do fluxo atual.
 
 As rotas:
 
-```text
+```
 /produtos-vendas/novo
 /produtos-vendas/:id/editar
+
 ```
 
 não fazem parte do fluxo atual do Front.
@@ -638,11 +643,12 @@ não fazem parte do fluxo atual do Front.
 
 A manutenção de Categoria utiliza os contratos reais disponibilizados pelo Core:
 
-```text
+```
 GET    /categorias
 GET    /categorias/{id}
 POST   /categorias
 PUT    /categorias/{id}
+
 ```
 
 Não existe `DELETE` para Categoria.
@@ -739,8 +745,9 @@ Foram realizadas validações funcionais das áreas de:
 
 Comando executado:
 
-```text
+```
 npm run build
+
 ```
 
 Resultado:
@@ -804,20 +811,22 @@ Permitir administrar o relacionamento Usuário → Perfil diretamente a partir d
 
 Arquivos principais:
 
-```text
+```
 src/modules/usuarios/services/usuarioPerfisService.ts
 src/modules/usuarios/hooks/useUsuarioPerfis.ts
 src/modules/usuarios/components/UsuarioPerfisSection.tsx
 src/modules/usuarios/pages/UsuarioFormPage.tsx
 src/components/common/ConfirmDialog/ConfirmDialog.tsx
+
 ```
 
 ## Contratos utilizados
 
-```text
+```
 GET    /usuarios/{usuarioId}/perfis
 POST   /usuarios/{usuarioId}/perfis/{perfilId}
 DELETE /usuarios/{usuarioId}/perfis/{perfilId}
+
 ```
 
 O relacionamento permanece separado de `UsuarioRequest` e `UsuarioResponse`; não foi adicionado `perfilId` ao Usuário.

@@ -9,7 +9,6 @@ import {
 } from '@mui/icons-material';
 
 import { useDeleteProduto, useProdutos } from '../hooks/useProdutos';
-import { usePermission } from '../../../auth/hooks/usePermission';
 
 import { DataTable } from '../../../components/table/DataTable/DataTable';
 import { Loading } from '../../../components/common/Loading/Loading';
@@ -21,7 +20,6 @@ import type { ProdutoResponse } from '../types/produtos';
 
 export default function ProdutosListPage() {
   const navigate = useNavigate();
-    const { hasPermission } = usePermission();
 
   const produtosQuery = useProdutos();
   const deleteMutation = useDeleteProduto();
@@ -123,21 +121,17 @@ export default function ProdutosListPage() {
       label: 'AÃ§Ãµes',
       renderCell: (produto: ProdutoResponse) => (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
-          {hasPermission('PRODUTO_EDITAR') && (
-            <Tooltip title="Editar">
-              <IconButton size="small" onClick={() => navigate(`/produtos/${produto.id}/editar`)}>
-                <EditIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          )}
+          <Tooltip title="Editar">
+            <IconButton size="small" onClick={() => navigate(`/produtos/${produto.id}/editar`)}>
+              <EditIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
 
-          {hasPermission('PRODUTO_EDITAR') && (
-            <Tooltip title="Inativar">
-              <IconButton size="small" color="error" onClick={() => setProdutoParaExcluir(produto)}>
-                <DeleteOutlinedIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          )}
+          <Tooltip title="Inativar">
+            <IconButton size="small" color="error" onClick={() => setProdutoParaExcluir(produto)}>
+              <DeleteOutlinedIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
         </Box>
       ),
     },
@@ -206,4 +200,3 @@ export default function ProdutosListPage() {
     </Box>
   );
 }
-

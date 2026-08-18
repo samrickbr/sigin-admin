@@ -22,8 +22,6 @@ import {
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { usePermission } from '../../auth/hooks/usePermission';
-
 const menuGroups = [
   {
     label: 'Visão geral',
@@ -98,7 +96,6 @@ const menuGroups = [
 ];
 
 export function Sidebar() {
-  const { hasPermission } = usePermission();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -114,7 +111,7 @@ export function Sidebar() {
       {menuGroups.map((group) => {
         const visibleItems = group.items.filter((item) => {
           if (item.path === '/produtos') {
-            return hasPermission('PRODUTO_VISUALIZAR');
+            return true;
           }
 
           return true;

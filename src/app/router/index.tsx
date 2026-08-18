@@ -2,7 +2,6 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { MainLayout } from '../../components/layout/MainLayout';
 import { AuthGuard } from '../../guards/AuthGuard';
-import { PermissionGuard } from '../../guards/PermissionGuard';
 
 import LoginPage from '../../auth/pages/LoginPage';
 import ForbiddenPage from '../../modules/errors/pages/ForbiddenPage';
@@ -86,11 +85,8 @@ export function AppRouter() {
           <Route path="/canais-venda/:id" element={<CanalVendaFormPage />} />
 
           {/* PRODUTOS */}
-          <Route element={<PermissionGuard permissao="PRODUTO_VISUALIZAR" />}>
+          
             <Route path="/produtos" element={<ProdutosListPage />} />
-          </Route>
-
-          <Route element={<PermissionGuard permissao="PRODUTO_EDITAR" />}>
             <Route path="/produtos/novo" element={<ProdutoFormPage />} />
             <Route path="/produtos/:id/editar" element={<ProdutoFormPage />} />
 
@@ -109,7 +105,6 @@ export function AppRouter() {
             <Route path="/pedidos/:id" element={<PedidoDetailsPage />} />
           </Route>
         </Route>
-      </Route>
     </Routes>
   );
 }
