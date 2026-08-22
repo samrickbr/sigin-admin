@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -167,10 +167,7 @@ export default function ProdutosListPage() {
 
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Tooltip title="Atualizar">
-            <IconButton
-              onClick={() => produtosQuery.refetch()}
-              disabled={produtosQuery.isFetching}
-            >
+            <IconButton onClick={() => produtosQuery.refetch()} disabled={produtosQuery.isFetching}>
               <RefreshIcon />
             </IconButton>
           </Tooltip>

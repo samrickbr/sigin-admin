@@ -4,7 +4,9 @@ import type {
   ProdutoRequest,
   ProdutoResponse,
   ProdutoCanalRequest,
-  ProdutoCanalResponse
+  ProdutoCanalResponse,
+  ProdutoVendaRequest,
+  ProdutoVendaResponse,
 } from '../types/produtos';
 
 // --- PRODUTOS ---
@@ -70,4 +72,29 @@ export async function deleteProdutoCanal(id: number): Promise<void> {
   await api.delete(`/api/produtos-canais/${id}`);
 }
 
-// --- CANAIS DE VENDA ---
+// --- PRODUTO VENDA ---
+
+export async function getProdutosVendas(): Promise<ProdutoVendaResponse[]> {
+  const response = await api.get<ProdutoVendaResponse[]>('/api/produtos-vendas');
+
+  return response.data;
+}
+
+export async function createProdutoVenda(data: ProdutoVendaRequest): Promise<ProdutoVendaResponse> {
+  const response = await api.post<ProdutoVendaResponse>('/api/produtos-vendas', data);
+
+  return response.data;
+}
+
+export async function updateProdutoVenda(
+  id: number,
+  data: ProdutoVendaRequest,
+): Promise<ProdutoVendaResponse> {
+  const response = await api.put<ProdutoVendaResponse>(`/api/produtos-vendas/${id}`, data);
+
+  return response.data;
+}
+
+export async function deleteProdutoVenda(id: number): Promise<void> {
+  await api.delete(`/api/produtos-vendas/${id}`);
+}

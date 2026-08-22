@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+
 import {
   Box,
   Button,
@@ -10,6 +11,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,10 +19,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   useCreateProduto,
   useCreateProdutoCanal,
+  useCreateProdutoVenda,
   useProduto,
   useProdutosCanais,
+  useProdutosVendas,
   useUpdateProduto,
   useUpdateProdutoCanal,
+  useUpdateProdutoVenda,
 } from '../hooks/useProdutos';
 
 import { useCategorias } from '../../categorias/hooks/useCategorias';
@@ -49,18 +54,30 @@ export default function ProdutoFormPage() {
   const { id } = useParams<{ id: string }>();
 
   const produtoId = id ? Number(id) : undefined;
+
   const isEditing = produtoId !== undefined && !Number.isNaN(produtoId);
 
   const produtoQuery = useProduto(produtoId);
+
   const categoriasQuery = useCategorias();
+
   const canaisQuery = useCanaisVenda();
+
   const produtosCanaisQuery = useProdutosCanais();
 
+  const produtosVendasQuery = useProdutosVendas();
+
   const createMutation = useCreateProduto();
+
   const updateMutation = useUpdateProduto();
 
   const createProdutoCanalMutation = useCreateProdutoCanal();
+
   const updateProdutoCanalMutation = useUpdateProdutoCanal();
+
+  const createProdutoVendaMutation = useCreateProdutoVenda();
+
+  const updateProdutoVendaMutation = useUpdateProdutoVenda();
 
   const {
     control,
@@ -69,6 +86,7 @@ export default function ProdutoFormPage() {
     formState: { errors, isSubmitting },
   } = useForm<ProdutoFormData>({
     resolver: zodResolver(produtoSchema),
+
     defaultValues: {
       nome: '',
       descricao: '',
@@ -87,11 +105,17 @@ export default function ProdutoFormPage() {
 
     reset({
       nome: produtoQuery.data.nome,
+
       descricao: produtoQuery.data.descricao ?? '',
+
       categoriaId: produtoQuery.data.categoriaId ?? 0,
+
       precoVenda: produtoQuery.data.precoVenda ?? 0,
+
       disponivelVenda: produtoQuery.data.disponivelVenda ?? true,
+
       imagem: produtoQuery.data.imagem ?? '',
+
       canaisVendaIds:
         produtosCanaisQuery.data
           ?.filter((item) => item.produtoId === produtoQuery.data.id && item.ativo)
@@ -103,9 +127,13 @@ export default function ProdutoFormPage() {
     try {
       let produtoSalvo;
 
+      /*
+       * 1. SALVAR PRODUTO
+       */
       if (isEditing && produtoId !== undefined) {
         produtoSalvo = await updateMutation.mutateAsync({
           id: produtoId,
+
           data: {
             nome: data.nome,
             descricao: data.descricao,
@@ -126,22 +154,40 @@ export default function ProdutoFormPage() {
         });
       }
 
+      /*
+       * 2. PRODUTO CANAL
+       */
       const canaisAtuais =
         produtosCanaisQuery.data?.filter((item) => item.produtoId === produtoSalvo.id) ?? [];
+
+      /*
+       * 3. PRODUTO VENDA
+       */
+      const vendasAtuais =
+        produtosVendasQuery.data?.filter((item) => item.produtoId === produtoSalvo.id) ?? [];
 
       for (const canal of canaisQuery.data ?? []) {
         const produtoCanal = canaisAtuais.find((item) => item.canalVendaId === canal.id);
 
+        const produtoVenda = vendasAtuais.find((item) => item.canalVendaId === canal.id);
+
         const selecionado = data.canaisVendaIds.includes(canal.id);
 
+        /*
+         * ProdutoCanal
+         */
         if (produtoCanal) {
           if (produtoCanal.ativo !== selecionado) {
             await updateProdutoCanalMutation.mutateAsync({
               id: produtoCanal.id,
+
               data: {
                 produtoId: produtoSalvo.id,
+
                 canalVendaId: canal.id,
+
                 precoVenda: produtoCanal.precoVenda,
+
                 ativo: selecionado,
               },
             });
@@ -149,15 +195,51 @@ export default function ProdutoFormPage() {
         } else if (selecionado) {
           await createProdutoCanalMutation.mutateAsync({
             produtoId: produtoSalvo.id,
+
             canalVendaId: canal.id,
+
             ativo: true,
           });
+        }
+
+        /*
+         * ProdutoVenda
+         *
+         * Só existe configuração comercial
+         * quando o produto está selecionado
+         * para o canal.
+         */
+        if (selecionado) {
+          const produtoVendaRequest = {
+            produtoId: produtoSalvo.id,
+
+            canalVendaId: canal.id,
+
+            precoVenda: data.precoVenda,
+
+            imagem: data.imagem,
+
+            disponivelVenda: data.disponivelVenda,
+          };
+
+          if (produtoVenda) {
+            await updateProdutoVendaMutation.mutateAsync({
+              id: produtoVenda.id,
+
+              data: produtoVendaRequest,
+            });
+          } else {
+            await createProdutoVendaMutation.mutateAsync(produtoVendaRequest);
+          }
         }
       }
 
       navigate('/produtos');
     } catch {
-      // O feedback da operação será tratado pelo estado das mutações.
+      /*
+       * O feedback da operação é tratado
+       * pelo estado das mutations.
+       */
     }
   };
 
@@ -165,7 +247,8 @@ export default function ProdutoFormPage() {
     (isEditing && produtoQuery.isLoading) ||
     categoriasQuery.isLoading ||
     canaisQuery.isLoading ||
-    (isEditing && produtosCanaisQuery.isLoading)
+    (isEditing && produtosCanaisQuery.isLoading) ||
+    produtosVendasQuery.isLoading
   ) {
     return <Loading />;
   }
@@ -174,7 +257,8 @@ export default function ProdutoFormPage() {
     produtoQuery.isError ||
     categoriasQuery.isError ||
     canaisQuery.isError ||
-    produtosCanaisQuery.isError
+    produtosCanaisQuery.isError ||
+    produtosVendasQuery.isError
   ) {
     return <Feedback severity="error" message="Não foi possível carregar os dados do produto." />;
   }
@@ -184,13 +268,17 @@ export default function ProdutoFormPage() {
     createMutation.isPending ||
     updateMutation.isPending ||
     createProdutoCanalMutation.isPending ||
-    updateProdutoCanalMutation.isPending;
+    updateProdutoCanalMutation.isPending ||
+    createProdutoVendaMutation.isPending ||
+    updateProdutoVendaMutation.isPending;
 
   const mutationError =
     createMutation.error ||
     updateMutation.error ||
     createProdutoCanalMutation.error ||
-    updateProdutoCanalMutation.error;
+    updateProdutoCanalMutation.error ||
+    createProdutoVendaMutation.error ||
+    updateProdutoVendaMutation.error;
 
   return (
     <Box>
@@ -347,7 +435,12 @@ export default function ProdutoFormPage() {
           name="canaisVendaIds"
           control={control}
           render={({ field }) => (
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
               {canaisQuery.data
                 ?.filter((canal) => canal.ativo !== false)
                 .map((canal) => {

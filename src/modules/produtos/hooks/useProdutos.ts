@@ -11,12 +11,20 @@ import {
   createProdutoCanal,
   updateProdutoCanal,
   deleteProdutoCanal,
+  getProdutosVendas,
+  createProdutoVenda,
+  updateProdutoVenda,
+  deleteProdutoVenda,
 } from '../services/produtosService';
 
-import type { ProdutoRequest, ProdutoCanalRequest } from '../types/produtos';
+import type { ProdutoRequest, ProdutoCanalRequest, ProdutoVendaRequest } from '../types/produtos';
 
 export const PRODUTOS_QUERY_KEY = ['produtos'];
+
 export const PRODUTOS_CANAIS_QUERY_KEY = ['produtos-canais'];
+
+export const PRODUTOS_VENDAS_QUERY_KEY = ['produtos-vendas'];
+
 export const CANAIS_VENDA_QUERY_KEY = ['canais-venda'];
 
 // --- PRODUTOS ---
@@ -48,6 +56,7 @@ export function useCreateProduto() {
 
   return useMutation({
     mutationFn: (data: ProdutoRequest) => createProduto(data),
+
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: PRODUTOS_QUERY_KEY,
@@ -75,6 +84,7 @@ export function useDeleteProduto() {
 
   return useMutation({
     mutationFn: (id: number) => deleteProduto(id),
+
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: PRODUTOS_QUERY_KEY,
@@ -130,6 +140,58 @@ export function useDeleteProdutoCanal() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: PRODUTOS_CANAIS_QUERY_KEY,
+      });
+    },
+  });
+}
+
+// --- PRODUTO VENDA ---
+
+export function useProdutosVendas() {
+  return useQuery({
+    queryKey: PRODUTOS_VENDAS_QUERY_KEY,
+    queryFn: getProdutosVendas,
+  });
+}
+
+export function useCreateProdutoVenda() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: ProdutoVendaRequest) => createProdutoVenda(data),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: PRODUTOS_VENDAS_QUERY_KEY,
+      });
+    },
+  });
+}
+
+export function useUpdateProdutoVenda() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: ProdutoVendaRequest }) =>
+      updateProdutoVenda(id, data),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: PRODUTOS_VENDAS_QUERY_KEY,
+      });
+    },
+  });
+}
+
+export function useDeleteProdutoVenda() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => deleteProdutoVenda(id),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: PRODUTOS_VENDAS_QUERY_KEY,
       });
     },
   });

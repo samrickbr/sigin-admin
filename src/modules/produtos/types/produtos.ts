@@ -54,4 +54,24 @@ export interface ProdutoCanalResponse {
   ativo: boolean;
 }
 
+// ProdutoVenda DTOs
+export interface ProdutoVendaRequest {
+  produtoId: number;
+  canalVendaId: number;
+  precoVenda?: number;
+  imagem?: string;
+  disponivelVenda?: boolean;
+}
+
+export interface ProdutoVendaResponse {
+  id: number;
+  produtoId: number;
+  produto?: string;
+  canalVendaId: number;
+  canalVenda?: string;
+  precoVenda?: number;
+  imagem?: string;
+  disponivelVenda?: boolean;
+}
+
 // CanalVenda DTOs
