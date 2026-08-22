@@ -19,6 +19,7 @@ import {
   ReceiptLongOutlined,
   BuildOutlined,
   LocationOnOutlined,
+  PaymentsOutlined,
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -55,6 +56,11 @@ const menuGroups = [
         label: 'Permissões',
         path: '/permissoes',
         icon: LockOutlined,
+      },
+      {
+        label: 'Formas de Pagamento',
+        path: '/formas-pagamento',
+        icon: PaymentsOutlined,
       },
       {
         label: 'Produtos',

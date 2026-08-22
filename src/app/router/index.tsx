@@ -39,6 +39,9 @@ import { PedidoDetailsPage } from '../../modules/pedidos/pages/PedidoDetailsPage
 
 import { PessoaDetailsPage } from '../../modules/pessoas/pages/PessoaDetailsPage';
 
+import FormasPagamentoListPage from '../../modules/formas-pagamento/pages/FormasPagamentoListPage';
+import FormaPagamentoFormPage from '../../modules/formas-pagamento/pages/FormaPagamentoFormPage';
+
 export function AppRouter() {
   return (
     <Routes>
@@ -85,26 +88,32 @@ export function AppRouter() {
           <Route path="/canais-venda/:id" element={<CanalVendaFormPage />} />
 
           {/* PRODUTOS */}
+
+          <Route path="/produtos" element={<ProdutosListPage />} />
+          <Route path="/produtos/novo" element={<ProdutoFormPage />} />
+          <Route path="/produtos/:id/editar" element={<ProdutoFormPage />} />
+
+          {/* MATERIAIS */}
+          <Route path="/materiais" element={<MateriaisListPage />} />
+          <Route path="/materiais/novo" element={<MaterialFormPage />} />
+          <Route path="/materiais/:id" element={<MaterialFormPage />} />
+
+          {/* LOCAIS */}
+          <Route path="/locais" element={<LocaisListPage />} />
+          <Route path="/locais/novo" element={<LocalFormPage />} />
+          <Route path="/locais/:id" element={<LocalFormPage />} />
+
+          {/* PEDIDOS */}
+          <Route path="/pedidos" element={<PedidosListPage />} />
+          <Route path="/pedidos/:id" element={<PedidoDetailsPage />} />
+
+          {/* FORMAS DE PAGAMENTO */}
+          <Route path="/formas-pagamento" element={<FormasPagamentoListPage />} />
+          <Route path="/formas-pagamento/novo" element={<FormaPagamentoFormPage />} />
+          <Route path="/formas-pagamento/:id" element={<FormaPagamentoFormPage />} />
           
-            <Route path="/produtos" element={<ProdutosListPage />} />
-            <Route path="/produtos/novo" element={<ProdutoFormPage />} />
-            <Route path="/produtos/:id/editar" element={<ProdutoFormPage />} />
-
-            {/* MATERIAIS */}
-            <Route path="/materiais" element={<MateriaisListPage />} />
-            <Route path="/materiais/novo" element={<MaterialFormPage />} />
-            <Route path="/materiais/:id" element={<MaterialFormPage />} />
-
-            {/* LOCAIS */}
-            <Route path="/locais" element={<LocaisListPage />} />
-            <Route path="/locais/novo" element={<LocalFormPage />} />
-            <Route path="/locais/:id" element={<LocalFormPage />} />
-
-            {/* PEDIDOS */}
-            <Route path="/pedidos" element={<PedidosListPage />} />
-            <Route path="/pedidos/:id" element={<PedidoDetailsPage />} />
-          </Route>
         </Route>
+      </Route>
     </Routes>
   );
 }
