@@ -1,18 +1,30 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Column } from '../../../components/table/DataTable/DataTable';
 
-import { Box, Button, Chip, IconButton, Tooltip, Typography } from '@mui/material';
-
 import {
   Add as AddIcon,
+  Block as BlockIcon,
   Edit as EditIcon,
   Refresh as RefreshIcon,
-  Block as BlockIcon,
   Visibility as VisibilityIcon,
 } from '@mui/icons-material';
 
-import { useDeletePessoa, usePessoas } from '../hooks/usePessoas';
+import {
+  Box,
+  Button,
+  Chip,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+
+import { useDeletePessoa, usePessoas, useTiposPessoa } from '../hooks/usePessoas';
 
 import { DataTable } from '../../../components/table/DataTable/DataTable';
 import { Loading } from '../../../components/common/Loading/Loading';
@@ -22,14 +34,22 @@ import { Feedback } from '../../../components/common/Feedback/Feedback';
 
 import type { PessoaResponse } from '../types/pessoas';
 
+type StatusFiltro = 'TODOS' | 'ATIVOS' | 'INATIVOS';
+
 export default function PessoasListPage() {
   const navigate = useNavigate();
 
   const { data: pessoas, isLoading, isError, refetch } = usePessoas();
 
+  const { data: tiposPessoa = [], isLoading: isLoadingTiposPessoa } = useTiposPessoa();
+
   const deletePessoa = useDeletePessoa();
 
   const [pessoaParaInativar, setPessoaParaInativar] = useState<PessoaResponse | null>(null);
+
+  const [busca, setBusca] = useState('');
+  const [statusFiltro, setStatusFiltro] = useState<StatusFiltro>('TODOS');
+  const [tipoFiltro, setTipoFiltro] = useState<string>('TODOS');
 
   const [feedback, setFeedback] = useState<{
     message: string;
@@ -57,6 +77,34 @@ export default function PessoasListPage() {
       });
     }
   };
+
+  const pessoasFiltradas = useMemo(() => {
+    if (!pessoas) {
+      return [];
+    }
+
+    const termo = busca.trim().toLowerCase();
+
+    return pessoas.filter((pessoa) => {
+      const correspondeBusca =
+        !termo ||
+        pessoa.nome?.toLowerCase().includes(termo) ||
+        pessoa.documento?.toLowerCase().includes(termo) ||
+        pessoa.telefone?.toLowerCase().includes(termo) ||
+        pessoa.email?.toLowerCase().includes(termo);
+
+      const correspondeStatus =
+        statusFiltro === 'TODOS' ||
+        (statusFiltro === 'ATIVOS' && pessoa.ativo) ||
+        (statusFiltro === 'INATIVOS' && !pessoa.ativo);
+
+      const correspondeTipo =
+        tipoFiltro === 'TODOS' ||
+        pessoa.tipos?.some((tipo) => tipo.toLowerCase() === tipoFiltro.toLowerCase());
+
+      return correspondeBusca && correspondeStatus && correspondeTipo;
+    });
+  }, [pessoas, busca, statusFiltro, tipoFiltro]);
 
   const columns: Column<PessoaResponse>[] = [
     {
@@ -215,10 +263,69 @@ export default function PessoasListPage() {
         </Box>
       </Box>
 
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 2,
+          mb: 2,
+          flexWrap: 'wrap',
+        }}
+      >
+        <TextField
+          label="Buscar"
+          placeholder="Nome, documento, telefone ou e-mail"
+          value={busca}
+          onChange={(event) => setBusca(event.target.value)}
+          fullWidth
+          sx={{
+            flex: 1,
+            minWidth: 280,
+          }}
+        />
+
+        <FormControl sx={{ minWidth: 180 }}>
+          <InputLabel id="pessoas-status-filtro-label">Status</InputLabel>
+
+          <Select
+            labelId="pessoas-status-filtro-label"
+            value={statusFiltro}
+            label="Status"
+            onChange={(event) => setStatusFiltro(event.target.value as StatusFiltro)}
+          >
+            <MenuItem value="TODOS">Todos</MenuItem>
+            <MenuItem value="ATIVOS">Ativos</MenuItem>
+            <MenuItem value="INATIVOS">Inativos</MenuItem>
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ minWidth: 200 }} disabled={isLoadingTiposPessoa}>
+          <InputLabel id="pessoas-tipo-filtro-label">Tipo</InputLabel>
+
+          <Select
+            labelId="pessoas-tipo-filtro-label"
+            value={tipoFiltro}
+            label="Tipo"
+            onChange={(event) => setTipoFiltro(event.target.value)}
+          >
+            <MenuItem value="TODOS">Todos</MenuItem>
+
+            {tiposPessoa
+              .filter((tipo) => tipo.ativo !== false)
+              .map((tipo) => (
+                <MenuItem key={tipo.id} value={tipo.nome}>
+                  {tipo.nome}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
+      </Box>
+
       {!pessoas || pessoas.length === 0 ? (
         <EmptyState message="Não existem pessoas cadastradas no sistema até o momento." />
+      ) : pessoasFiltradas.length === 0 ? (
+        <EmptyState message="Nenhuma pessoa encontrada para os filtros informados." />
       ) : (
-        <DataTable rows={pessoas} columns={columns} />
+        <DataTable rows={pessoasFiltradas} columns={columns} />
       )}
 
       <ConfirmDialog

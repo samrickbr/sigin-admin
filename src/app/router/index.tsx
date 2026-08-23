@@ -42,6 +42,9 @@ import { PessoaDetailsPage } from '../../modules/pessoas/pages/PessoaDetailsPage
 import FormasPagamentoListPage from '../../modules/formas-pagamento/pages/FormasPagamentoListPage';
 import FormaPagamentoFormPage from '../../modules/formas-pagamento/pages/FormaPagamentoFormPage';
 
+import TiposPessoaListPage from '../../modules/tipos-pessoa/pages/TiposPessoaListPage';
+import TipoPessoaFormPage from '../../modules/tipos-pessoa/pages/TiposPessoaFormPage';
+
 export function AppRouter() {
   return (
     <Routes>
@@ -111,7 +114,12 @@ export function AppRouter() {
           <Route path="/formas-pagamento" element={<FormasPagamentoListPage />} />
           <Route path="/formas-pagamento/novo" element={<FormaPagamentoFormPage />} />
           <Route path="/formas-pagamento/:id" element={<FormaPagamentoFormPage />} />
-          
+
+          {/* TIPOS DE PESSOA */}
+          <Route path="/tipos-pessoa" element={<TiposPessoaListPage />} />
+          <Route path="/tipos-pessoa/novo" element={<TipoPessoaFormPage />} />
+          <Route path="/tipos-pessoa/:id/editar" element={<TipoPessoaFormPage />} />
+
         </Route>
       </Route>
     </Routes>

@@ -20,6 +20,7 @@ import {
   BuildOutlined,
   LocationOnOutlined,
   PaymentsOutlined,
+  TuneOutlined,
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -41,6 +42,11 @@ const menuGroups = [
         label: 'Pessoas',
         path: '/pessoas',
         icon: PeopleOutlined,
+      },
+      {
+        label: 'Tipos de Pessoa',
+        path: '/tipos-pessoa',
+        icon: TuneOutlined,
       },
       {
         label: 'Usuários',

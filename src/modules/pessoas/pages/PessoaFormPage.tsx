@@ -5,9 +5,12 @@ import {
   Alert,
   Box,
   Button,
+  Checkbox,
+  Chip,
   FormControl,
   FormHelperText,
   InputLabel,
+  ListItemText,
   MenuItem,
   Select,
   Stack,
@@ -19,7 +22,13 @@ import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { useCreatePessoa, usePessoa, useUpdatePessoa } from '../hooks/usePessoas';
+import {
+  useAdicionarTipoPessoa,
+  useCreatePessoa,
+  usePessoa,
+  useTiposPessoa,
+  useUpdatePessoa,
+} from '../hooks/usePessoas';
 
 import { Loading } from '../../../components/common/Loading/Loading';
 import { Feedback } from '../../../components/common/Feedback/Feedback';
@@ -31,6 +40,7 @@ const pessoaSchema = z.object({
   telefone: z.string().optional(),
   email: z.string().email('Informe um e-mail válido.').or(z.literal('')).optional(),
   observacao: z.string().optional(),
+  tiposPessoaIds: z.array(z.number()).min(1, 'Selecione pelo menos um tipo de pessoa.'),
   ativo: z.boolean(),
 });
 
@@ -45,8 +55,15 @@ export default function PessoaFormPage() {
 
   const { data: pessoa, isLoading: isLoadingPessoa, isError: isPessoaError } = usePessoa(pessoaId);
 
+  const {
+    data: tiposPessoa = [],
+    isLoading: isLoadingTiposPessoa,
+    isError: isTiposPessoaError,
+  } = useTiposPessoa();
+
   const createPessoa = useCreatePessoa();
   const updatePessoa = useUpdatePessoa();
+  const adicionarTipoPessoa = useAdicionarTipoPessoa();
 
   const [feedback, setFeedback] = useState<{
     message: string;
@@ -67,6 +84,7 @@ export default function PessoaFormPage() {
       telefone: '',
       email: '',
       observacao: '',
+      tiposPessoaIds: [],
       ativo: true,
     },
   });
@@ -76,6 +94,10 @@ export default function PessoaFormPage() {
       return;
     }
 
+    const tiposSelecionados = tiposPessoa
+      .filter((tipo) => pessoa.tipos?.includes(tipo.nome))
+      .map((tipo) => tipo.id);
+
     reset({
       nome: pessoa.nome,
       tipoDocumento: pessoa.tipoDocumento,
@@ -83,24 +105,30 @@ export default function PessoaFormPage() {
       telefone: pessoa.telefone ?? '',
       email: pessoa.email ?? '',
       observacao: pessoa.observacao ?? '',
+      tiposPessoaIds: tiposSelecionados,
       ativo: pessoa.ativo,
     });
-  }, [pessoa, reset]);
+  }, [pessoa, tiposPessoa, reset]);
 
   const onSubmit = async (data: PessoaFormData) => {
     try {
+      let pessoaCriadaId = pessoaId;
+
       if (isEditing && pessoaId) {
         await updatePessoa.mutateAsync({
           id: pessoaId,
-          data,
-        });
-
-        setFeedback({
-          message: 'Pessoa atualizada com sucesso.',
-          severity: 'success',
+          data: {
+            nome: data.nome,
+            tipoDocumento: data.tipoDocumento,
+            documento: data.documento,
+            telefone: data.telefone,
+            email: data.email,
+            observacao: data.observacao,
+            ativo: data.ativo,
+          },
         });
       } else {
-        await createPessoa.mutateAsync({
+        const pessoaCriada = await createPessoa.mutateAsync({
           nome: data.nome,
           tipoDocumento: data.tipoDocumento,
           documento: data.documento,
@@ -109,11 +137,32 @@ export default function PessoaFormPage() {
           observacao: data.observacao,
         });
 
-        setFeedback({
-          message: 'Pessoa cadastrada com sucesso.',
-          severity: 'success',
-        });
+        pessoaCriadaId = pessoaCriada.id;
       }
+
+      if (pessoaCriadaId) {
+        const tiposAtuais = pessoa?.tipos ?? [];
+
+        const tiposParaAdicionar = data.tiposPessoaIds.filter((tipoId) => {
+          const tipo = tiposPessoa.find((item) => item.id === tipoId);
+
+          return tipo && !tiposAtuais.includes(tipo.nome);
+        });
+
+        for (const tipoId of tiposParaAdicionar) {
+          await adicionarTipoPessoa.mutateAsync({
+            pessoaId: pessoaCriadaId,
+            data: {
+              tipoPessoaId: tipoId,
+            },
+          });
+        }
+      }
+
+      setFeedback({
+        message: isEditing ? 'Pessoa atualizada com sucesso.' : 'Pessoa cadastrada com sucesso.',
+        severity: 'success',
+      });
 
       setTimeout(() => {
         navigate('/pessoas');
@@ -144,7 +193,8 @@ export default function PessoaFormPage() {
     );
   }
 
-  const isSubmitting = createPessoa.isPending || updatePessoa.isPending;
+  const isSubmitting =
+    createPessoa.isPending || updatePessoa.isPending || adicionarTipoPessoa.isPending;
 
   return (
     <Box sx={{ p: 3, maxWidth: 900 }}>
@@ -160,6 +210,12 @@ export default function PessoaFormPage() {
         </Typography>
       </Box>
 
+      {isTiposPessoaError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Não foi possível carregar os tipos de pessoa.
+        </Alert>
+      )}
+
       <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
         <Stack spacing={2.5}>
           <Controller
@@ -171,6 +227,7 @@ export default function PessoaFormPage() {
                 label="Nome"
                 fullWidth
                 required
+                disabled={isSubmitting}
                 error={!!errors.nome}
                 helperText={errors.nome?.message}
               />
@@ -178,10 +235,72 @@ export default function PessoaFormPage() {
           />
 
           <Controller
+            name="tiposPessoaIds"
+            control={control}
+            render={({ field }) => (
+              <FormControl
+                fullWidth
+                required
+                disabled={isSubmitting || isLoadingTiposPessoa}
+                error={!!errors.tiposPessoaIds}
+              >
+                <InputLabel id="tipos-pessoa-label">Tipo de Pessoa</InputLabel>
+
+                <Select
+                  {...field}
+                  multiple
+                  labelId="tipos-pessoa-label"
+                  label="Tipo de Pessoa"
+                  value={field.value ?? []}
+                  renderValue={(selected) => (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: 0.5,
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      {(selected as number[]).map((tipoId) => {
+                        const tipo = tiposPessoa.find((item) => item.id === tipoId);
+
+                        return tipo ? <Chip key={tipo.id} label={tipo.nome} size="small" /> : null;
+                      })}
+                    </Box>
+                  )}
+                  onChange={(event) => {
+                    const value = event.target.value;
+
+                    field.onChange(
+                      typeof value === 'string' ? value.split(',').map(Number) : value,
+                    );
+                  }}
+                >
+                  {tiposPessoa
+                    .filter((tipo) => tipo.ativo !== false)
+                    .map((tipo) => (
+                      <MenuItem key={tipo.id} value={tipo.id}>
+                        <Checkbox checked={field.value?.includes(tipo.id) ?? false} />
+
+                        <ListItemText primary={tipo.nome} />
+                      </MenuItem>
+                    ))}
+                </Select>
+
+                <FormHelperText>{errors.tiposPessoaIds?.message}</FormHelperText>
+              </FormControl>
+            )}
+          />
+
+          <Controller
             name="tipoDocumento"
             control={control}
             render={({ field }) => (
-              <FormControl fullWidth required error={!!errors.tipoDocumento}>
+              <FormControl
+                fullWidth
+                required
+                disabled={isSubmitting}
+                error={!!errors.tipoDocumento}
+              >
                 <InputLabel>Tipo de Documento</InputLabel>
 
                 <Select {...field} label="Tipo de Documento">
@@ -207,6 +326,7 @@ export default function PessoaFormPage() {
                 label="Documento"
                 fullWidth
                 required
+                disabled={isSubmitting}
                 error={!!errors.documento}
                 helperText={errors.documento?.message}
               />
@@ -221,6 +341,7 @@ export default function PessoaFormPage() {
                 {...field}
                 label="Telefone"
                 fullWidth
+                disabled={isSubmitting}
                 error={!!errors.telefone}
                 helperText={errors.telefone?.message}
               />
@@ -236,6 +357,7 @@ export default function PessoaFormPage() {
                 label="E-mail"
                 type="email"
                 fullWidth
+                disabled={isSubmitting}
                 error={!!errors.email}
                 helperText={errors.email?.message}
               />
@@ -246,7 +368,14 @@ export default function PessoaFormPage() {
             name="observacao"
             control={control}
             render={({ field }) => (
-              <TextField {...field} label="Observação" fullWidth multiline minRows={3} />
+              <TextField
+                {...field}
+                label="Observação"
+                fullWidth
+                multiline
+                minRows={3}
+                disabled={isSubmitting}
+              />
             )}
           />
 
@@ -255,7 +384,7 @@ export default function PessoaFormPage() {
               name="ativo"
               control={control}
               render={({ field }) => (
-                <FormControl fullWidth>
+                <FormControl fullWidth disabled={isSubmitting}>
                   <InputLabel>Status</InputLabel>
 
                   <Select

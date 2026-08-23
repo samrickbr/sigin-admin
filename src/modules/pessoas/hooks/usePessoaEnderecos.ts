@@ -4,8 +4,10 @@ import {
   createPessoaEndereco,
   deletePessoaEndereco,
   definirPessoaEnderecoPrincipal,
+  getCep,
   getPessoaEnderecoById,
   getPessoaEnderecos,
+  getEstados,
   updatePessoaEndereco,
 } from '../services/pessoaEnderecosService';
 
@@ -93,5 +95,22 @@ export function useDeletePessoaEndereco() {
         queryKey: [...PESSOA_ENDERECOS_QUERY_KEY, variables.pessoaId],
       });
     },
+  });
+}
+
+export function useCep(cep: string) {
+  const normalizedCep = cep.replace(/\D/g, '');
+
+  return useQuery({
+    queryKey: ['cep', normalizedCep],
+    queryFn: () => getCep(normalizedCep),
+    enabled: normalizedCep.length === 8,
+  });
+}
+
+export function useEstados() {
+  return useQuery({
+    queryKey: ['estados'],
+    queryFn: getEstados,
   });
 }
