@@ -1,25 +1,227 @@
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Box, Button, Chip, Divider, Paper, Typography } from '@mui/material';
+import { PessoaEnderecosSection } from '../components/PessoaEnderecosSection';
+import { PessoaDataSection } from '../components/PessoaDataSection';
+
+import { PessoaEnderecoDialog } from '../components/PessoaEnderecoDialog';
+import type { EnderecoFormData } from '../components/pessoaEnderecoForm';
+
+import {
+  Box,
+  Button,
+  Typography,
+} from '@mui/material';
+
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 
-import { EmptyState, Loading } from '../../../components/common';
+import { PessoaAcessoSistema } from '../components/PessoaAcessoSistema';
+
+import {
+  ConfirmDialog,
+  EmptyState,
+  Feedback,
+  Loading,
+} from '../../../components/common';
+
 import { usePessoa } from '../hooks/usePessoas';
-import { useUsuarioDaPessoa } from '../../usuarios/hooks/useUsuarios';
-import { useUsuarioPerfis } from '../../usuarios/hooks/useUsuarioPerfis';
+
+import {
+  useCreatePessoaEndereco,
+  useDeletePessoaEndereco,
+  useDefinirPessoaEnderecoPrincipal,
+  usePessoaEnderecos,
+  useUpdatePessoaEndereco,
+} from '../hooks/usePessoaEnderecos';
+
+import type { PessoaEnderecoResponse } from '../types/pessoaEndereco';
+
+type FeedbackState = {
+  message: string;
+  severity: 'success' | 'error';
+} | null;
 
 export function PessoaDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const pessoaId = id ? Number(id) : undefined;
+  const pessoaIdValido =
+    pessoaId !== undefined && Number.isFinite(pessoaId);
 
-  const pessoaQuery = usePessoa(pessoaId);
-  const usuarioQuery = useUsuarioDaPessoa(pessoaId);
+  const pessoaQuery = usePessoa(
+    pessoaIdValido ? pessoaId : undefined,
+  );
 
-  const usuarioPerfisQuery = useUsuarioPerfis(usuarioQuery.data?.id);
+  const enderecosQuery = usePessoaEnderecos(
+    pessoaIdValido ? pessoaId : undefined,
+  );
+
+  const createEndereco = useCreatePessoaEndereco();
+  const updateEndereco = useUpdatePessoaEndereco();
+  const definirPrincipal = useDefinirPessoaEnderecoPrincipal();
+  const deleteEndereco = useDeletePessoaEndereco();
+
+  const [enderecoDialogOpen, setEnderecoDialogOpen] = useState(false);
+  const [enderecoSelecionado, setEnderecoSelecionado] =
+    useState<PessoaEnderecoResponse | null>(null);
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [enderecoParaExcluir, setEnderecoParaExcluir] =
+    useState<PessoaEnderecoResponse | null>(null);
+
+  const [feedback, setFeedback] =
+    useState<FeedbackState>(null);
+
+  const abrirNovoEndereco = () => {
+    setFeedback(null);
+    setEnderecoSelecionado(null);
+    setEnderecoDialogOpen(true);
+  };
+
+  const abrirEdicaoEndereco = (
+    endereco: PessoaEnderecoResponse,
+  ) => {
+    setFeedback(null);
+    setEnderecoSelecionado(endereco);
+    setEnderecoDialogOpen(true);
+  };
+
+  const fecharEnderecoDialog = () => {
+    if (
+      createEndereco.isPending ||
+      updateEndereco.isPending
+    ) {
+      return;
+    }
+
+    setEnderecoDialogOpen(false);
+    setEnderecoSelecionado(null);
+  };
+
+  const onSubmitEndereco = async (
+    data: EnderecoFormData,
+  ) => {
+    if (!pessoaIdValido || !pessoaId) {
+      return;
+    }
+
+    try {
+      if (enderecoSelecionado) {
+        await updateEndereco.mutateAsync({
+          pessoaId,
+          enderecoId: enderecoSelecionado.id,
+          data,
+        });
+
+        setFeedback({
+          message: 'Endereço atualizado com sucesso.',
+          severity: 'success',
+        });
+      } else {
+        await createEndereco.mutateAsync({
+          pessoaId,
+          data,
+        });
+
+        setFeedback({
+          message: 'Endereço cadastrado com sucesso.',
+          severity: 'success',
+        });
+      }
+
+      fecharEnderecoDialog();
+    } catch {
+      setFeedback({
+        message: enderecoSelecionado
+          ? 'Não foi possível atualizar o endereço.'
+          : 'Não foi possível cadastrar o endereço.',
+        severity: 'error',
+      });
+    }
+  };
+
+  const handleDefinirPrincipal = async (
+    endereco: PessoaEnderecoResponse,
+  ) => {
+    if (
+      !pessoaIdValido ||
+      !pessoaId ||
+      endereco.principal
+    ) {
+      return;
+    }
+
+    try {
+      await definirPrincipal.mutateAsync({
+        pessoaId,
+        enderecoId: endereco.id,
+      });
+
+      setFeedback({
+        message:
+          'Endereço principal atualizado com sucesso.',
+        severity: 'success',
+      });
+    } catch {
+      setFeedback({
+        message:
+          'Não foi possível definir o endereço como principal.',
+        severity: 'error',
+      });
+    }
+  };
+
+  const abrirConfirmacaoExclusao = (
+    endereco: PessoaEnderecoResponse,
+  ) => {
+    setFeedback(null);
+    setEnderecoParaExcluir(endereco);
+    setDeleteDialogOpen(true);
+  };
+
+  const cancelarExclusao = () => {
+    if (deleteEndereco.isPending) {
+      return;
+    }
+
+    setDeleteDialogOpen(false);
+    setEnderecoParaExcluir(null);
+  };
+
+  const confirmarExclusao = async () => {
+    if (
+      !pessoaIdValido ||
+      !pessoaId ||
+      !enderecoParaExcluir
+    ) {
+      return;
+    }
+
+    try {
+      await deleteEndereco.mutateAsync({
+        pessoaId,
+        enderecoId: enderecoParaExcluir.id,
+      });
+
+      setDeleteDialogOpen(false);
+      setEnderecoParaExcluir(null);
+
+      setFeedback({
+        message: 'Endereço excluído com sucesso.',
+        severity: 'success',
+      });
+    } catch {
+      setFeedback({
+        message: 'Não foi possível excluir o endereço.',
+        severity: 'error',
+      });
+    }
+  };
+
+  if (!pessoaIdValido) {
+    return <EmptyState message="Pessoa não encontrada." />;
+  }
 
   if (pessoaQuery.isLoading) {
     return <Loading />;
@@ -30,7 +232,10 @@ export function PessoaDetailsPage() {
   }
 
   const pessoa = pessoaQuery.data;
-  const usuario = usuarioQuery.data;
+
+  const isEnderecoSubmitting =
+    createEndereco.isPending ||
+    updateEndereco.isPending;
 
   return (
     <Box>
@@ -39,17 +244,26 @@ export function PessoaDetailsPage() {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          gap: 2,
           mb: 3,
+          flexWrap: 'wrap',
         }}
       >
         <Box>
           <Typography variant="h5">Pessoa</Typography>
+
           <Typography variant="body2" color="text.secondary">
             Visualização dos dados e acesso ao sistema.
           </Typography>
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 1,
+            flexWrap: 'wrap',
+          }}
+        >
           <Button
             variant="outlined"
             startIcon={<ArrowBackOutlinedIcon />}
@@ -68,162 +282,50 @@ export function PessoaDetailsPage() {
         </Box>
       </Box>
 
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Dados da pessoa
-        </Typography>
-
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-            gap: 2,
-          }}
-        >
-          <Box>
-            <Typography variant="body2" color="text.secondary">
-              Nome
-            </Typography>
-            <Typography>{pessoa.nome}</Typography>
-          </Box>
-
-          <Box>
-            <Typography variant="body2" color="text.secondary">
-              Documento
-            </Typography>
-            <Typography>
-              {pessoa.tipoDocumento}: {pessoa.documento}
-            </Typography>
-          </Box>
-
-          <Box>
-            <Typography variant="body2" color="text.secondary">
-              Telefone
-            </Typography>
-            <Typography>{pessoa.telefone || '-'}</Typography>
-          </Box>
-
-          <Box>
-            <Typography variant="body2" color="text.secondary">
-              E-mail
-            </Typography>
-            <Typography>{pessoa.email || '-'}</Typography>
-          </Box>
-
-          <Box>
-            <Typography variant="body2" color="text.secondary">
-              Status
-            </Typography>
-            <Box sx={{ mt: 0.5 }}>
-              <Chip label={pessoa.ativo ? 'Ativo' : 'Inativo'} size="small" />
-            </Box>
-          </Box>
+      {feedback && (
+        <Box sx={{ mb: 3 }}>
+          <Feedback message={feedback.message} severity={feedback.severity} />
         </Box>
+      )}
 
-        {pessoa.observacao && (
-          <>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="body2" color="text.secondary">
-              Observação
-            </Typography>
-            <Typography>{pessoa.observacao}</Typography>
-          </>
-        )}
-      </Paper>
+      <PessoaDataSection pessoa={pessoa} />
 
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h6" sx={{ mb: 1 }}>
-          Acesso ao sistema
-        </Typography>
+      <PessoaEnderecosSection
+        enderecosQuery={enderecosQuery}
+        onNovo={abrirNovoEndereco}
+        onEditar={abrirEdicaoEndereco}
+        onDefinirPrincipal={handleDefinirPrincipal}
+        onExcluir={abrirConfirmacaoExclusao}
+        definirPrincipalPending={definirPrincipal.isPending}
+        deletePending={deleteEndereco.isPending}
+      />
 
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Usuário vinculado a esta pessoa.
-        </Typography>
+      <PessoaAcessoSistema
+        pessoaId={pessoa.id}
+        onGerenciarAcesso={(usuarioId) => navigate(`/pessoas/${pessoa.id}/usuario/${usuarioId}`)}
+        onCriarAcesso={() => navigate(`/pessoas/${pessoa.id}/usuario/novo`)}
+      />
 
-        {usuarioQuery.isLoading ? (
-          <Loading />
-        ) : usuario ? (
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: 2,
-            }}
-          >
-            <Box>
-              <Typography>{usuario.login}</Typography>
+      <PessoaEnderecoDialog
+        open={enderecoDialogOpen}
+        endereco={enderecoSelecionado}
+        isSubmitting={isEnderecoSubmitting}
+        onClose={fecharEnderecoDialog}
+        onSubmit={onSubmitEndereco}
+      />
 
-              <Chip label={usuario.ativo ? 'Ativo' : 'Inativo'} size="small" sx={{ mt: 0.5 }} />
-
-              <Box sx={{ mt: 1.5 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Perfil
-                </Typography>
-
-                {usuarioPerfisQuery.isLoading ? (
-                  <Typography variant="body2" color="text.secondary">
-                    Carregando...
-                  </Typography>
-                ) : usuarioPerfisQuery.isError ? (
-                  <Typography variant="body2" color="error">
-                    Não foi possível carregar o perfil.
-                  </Typography>
-                ) : usuarioPerfisQuery.data?.length ? (
-                  <Box sx={{ mt: 0.5 }}>
-                    {usuarioPerfisQuery.data.map((perfil) => (
-                      <Box
-                        key={perfil.id}
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1,
-                          mb: 0.5,
-                        }}
-                      >
-                        <Typography>{perfil.nome}</Typography>
-
-                        {!perfil.ativo && <Chip label="Inativo" size="small" />}
-                      </Box>
-                    ))}
-                  </Box>
-                ) : (
-                  <Typography color="text.secondary">Nenhum perfil vinculado.</Typography>
-                )}
-              </Box>
-            </Box>
-
-            <Button
-              variant="outlined"
-              startIcon={<VisibilityOutlinedIcon />}
-              onClick={() => navigate(`/pessoas/${pessoa.id}/usuario/${usuario.id}`)}
-            >
-              Gerenciar acesso
-            </Button>
-          </Box>
-        ) : (
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: 2,
-            }}
-          >
-            <Typography color="text.secondary">
-              Esta pessoa ainda não possui acesso ao sistema.
-            </Typography>
-
-            <Button
-              variant="contained"
-              startIcon={<PersonAddOutlinedIcon />}
-              onClick={() => navigate(`/pessoas/${pessoa.id}/usuario/novo`)}
-            >
-              Criar acesso ao sistema
-            </Button>
-          </Box>
-        )}
-      </Paper>
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="Excluir endereço"
+        message={
+          enderecoParaExcluir
+            ? `Deseja excluir o endereço ${enderecoParaExcluir.logradouro}, ${enderecoParaExcluir.numero}?`
+            : 'Deseja excluir este endereço?'
+        }
+        onConfirm={confirmarExclusao}
+        onCancel={cancelarExclusao}
+        isConfirming={deleteEndereco.isPending}
+      />
     </Box>
   );
 }
