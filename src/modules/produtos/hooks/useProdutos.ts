@@ -17,7 +17,12 @@ import {
   deleteProdutoVenda,
 } from '../services/produtosService';
 
-import type { ProdutoRequest, ProdutoCanalRequest, ProdutoVendaRequest } from '../types/produtos';
+import type {
+  ProdutoRequest,
+  ProdutoCanalRequest,
+  ProdutoVendaRequest,
+  ProdutosFiltro,
+} from '../types/produtos';
 
 export const PRODUTOS_QUERY_KEY = ['produtos'];
 
@@ -29,10 +34,11 @@ export const CANAIS_VENDA_QUERY_KEY = ['canais-venda'];
 
 // --- PRODUTOS ---
 
-export function useProdutos() {
+export function useProdutos(filtros: ProdutosFiltro) {
   return useQuery({
-    queryKey: PRODUTOS_QUERY_KEY,
-    queryFn: getProdutos,
+    queryKey: [...PRODUTOS_QUERY_KEY, filtros],
+    queryFn: () => getProdutos(filtros),
+    placeholderData: (previousData) => previousData,
   });
 }
 

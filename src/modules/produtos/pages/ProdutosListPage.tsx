@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
   Chip,
   IconButton,
+  MenuItem,
   TextField,
   Tooltip,
   Typography,
@@ -17,6 +18,7 @@ import {
 } from '@mui/icons-material';
 
 import { useDeleteProduto, useProdutos } from '../hooks/useProdutos';
+import { useCategorias } from '../../categorias/hooks/useCategorias';
 
 import { DataTable } from '../../../components/table/DataTable/DataTable';
 import { Loading } from '../../../components/common/Loading/Loading';
@@ -29,31 +31,92 @@ import type { ProdutoResponse } from '../types/produtos';
 export default function ProdutosListPage() {
   const navigate = useNavigate();
 
-  const produtosQuery = useProdutos();
   const deleteMutation = useDeleteProduto();
+  const categoriasQuery = useCategorias();
 
-  const [search, setSearch] = useState('');
+  const [categoriaFiltro, setCategoriaFiltro] = useState('');
+  const [setorFiltro, setSetorFiltro] = useState('');
+  const [vendaFiltro, setVendaFiltro] = useState('');
+  const [situacaoFiltro, setSituacaoFiltro] = useState('');
+
   const [produtoParaExcluir, setProdutoParaExcluir] = useState<ProdutoResponse | null>(null);
 
-  const produtos = useMemo(() => produtosQuery.data ?? [], [produtosQuery.data]);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [search, setSearch] = useState('');
+  const [buscaAplicada, setBuscaAplicada] = useState('');
 
-  const produtosFiltrados = useMemo(() => {
-    const termo = search.trim().toLowerCase();
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setBuscaAplicada(search.trim());
+      setPage(0);
+    }, 400);
 
-    if (!termo) {
-      return produtos.slice(0, 20);
-    }
+    return () => clearTimeout(timer);
+  }, [search]);
 
-    return produtos
-      .filter((produto) => {
-        return (
-          produto.codigo?.toLowerCase().includes(termo) ||
-          produto.nome.toLowerCase().includes(termo) ||
-          produto.categoria?.toLowerCase().includes(termo)
-        );
-      })
-      .slice(0, 20);
-  }, [produtos, search]);
+  /*
+   * A consulta é feita diretamente no Core.
+   *
+   * Não fazer filtro, busca ou slice no navegador.
+   */
+  const produtosQuery = useProdutos({
+    page,
+    size: pageSize,
+    busca: buscaAplicada.trim() || undefined,
+
+    categoriaId:
+      categoriaFiltro && categoriaFiltro !== '__SEM_CATEGORIA__'
+        ? Number(categoriaFiltro)
+        : undefined,
+
+    semCategoria: categoriaFiltro === '__SEM_CATEGORIA__',
+
+    setor:
+      setorFiltro && setorFiltro !== '__SEM_SETOR__'
+        ? (setorFiltro as 'COZINHA' | 'PIZZARIA' | 'BALCAO')
+        : undefined,
+
+    semSetor: setorFiltro === '__SEM_SETOR__',
+
+    disponivelVenda:
+      vendaFiltro === 'disponivel' ? true : vendaFiltro === 'indisponivel' ? false : undefined,
+
+    ativo: situacaoFiltro === 'ativo' ? true : situacaoFiltro === 'inativo' ? false : undefined,
+  });
+
+  const produtos = useMemo(() => produtosQuery.data?.content ?? [], [produtosQuery.data?.content]);
+
+  const totalProdutos = produtosQuery.data?.totalElements ?? 0;
+
+  /*
+   * As categorias são usadas somente para montar o filtro visual.
+   *
+   * Como agora o Core retorna somente a página atual,
+   * esta lista representa apenas as categorias presentes na página.
+   *
+   * Se o Core já possuir endpoint de categorias, o ideal é utilizar
+   * esse endpoint posteriormente para popular o filtro.
+   */
+  const categorias = useMemo(() => {
+    return [...(categoriasQuery.data ?? [])].sort((a, b) => a.nome.localeCompare(b.nome));
+  }, [categoriasQuery.data]);
+
+  const limparFiltros = () => {
+    setSearch('');
+    setCategoriaFiltro('');
+    setSetorFiltro('');
+    setVendaFiltro('');
+    setSituacaoFiltro('');
+    setPage(0);
+  };
+
+  const possuiFiltros =
+    search !== '' ||
+    categoriaFiltro !== '' ||
+    setorFiltro !== '' ||
+    vendaFiltro !== '' ||
+    situacaoFiltro !== '';
 
   const handleExcluir = async () => {
     if (!produtoParaExcluir) {
@@ -61,6 +124,7 @@ export default function ProdutosListPage() {
     }
 
     await deleteMutation.mutateAsync(produtoParaExcluir.id);
+
     setProdutoParaExcluir(null);
   };
 
@@ -87,6 +151,20 @@ export default function ProdutosListPage() {
       id: 'categoria',
       field: 'categoria' as keyof ProdutoResponse,
       label: 'Categoria',
+    },
+    {
+      id: 'setor',
+      field: 'setor' as keyof ProdutoResponse,
+      label: 'Setor',
+      renderCell: (produto: ProdutoResponse) => {
+        const labels: Record<string, string> = {
+          COZINHA: 'Cozinha',
+          PIZZARIA: 'Pizzaria',
+          BALCAO: 'Balcão',
+        };
+
+        return <Chip size="small" label={labels[produto.setor ?? ''] ?? '-'} variant="outlined" />;
+      },
     },
     {
       id: 'precoVenda',
@@ -130,20 +208,13 @@ export default function ProdutosListPage() {
       renderCell: (produto: ProdutoResponse) => (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           <Tooltip title="Editar">
-            <IconButton
-              size="small"
-              onClick={() => navigate(`/produtos/${produto.id}/editar`)}
-            >
+            <IconButton size="small" onClick={() => navigate(`/produtos/${produto.id}/editar`)}>
               <EditIcon fontSize="small" />
             </IconButton>
           </Tooltip>
 
           <Tooltip title="Inativar">
-            <IconButton
-              size="small"
-              color="error"
-              onClick={() => setProdutoParaExcluir(produto)}
-            >
+            <IconButton size="small" color="error" onClick={() => setProdutoParaExcluir(produto)}>
               <DeleteOutlinedIcon fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -182,22 +253,139 @@ export default function ProdutosListPage() {
         </Box>
       </Box>
 
-      <TextField
-        fullWidth
-        label="Buscar produto"
-        placeholder="Código, nome ou categoria"
-        value={search}
-        onChange={(event) => setSearch(event.target.value)}
-        sx={{ mb: 2 }}
-      />
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: '2fr 1fr 1fr 1fr 1fr',
+          },
+          gap: 2,
+          mb: 2,
+        }}
+      >
+        <TextField
+          label="Buscar produto"
+          placeholder="Código, nome ou categoria"
+          value={search}
+          onChange={(event) => {
+            setSearch(event.target.value);
+          }}
+          fullWidth
+        />
+
+        <TextField
+          select
+          label="Categoria"
+          value={categoriaFiltro}
+          onChange={(event) => {
+            setCategoriaFiltro(event.target.value);
+            setPage(0);
+          }}
+          fullWidth
+        >
+          <MenuItem value="">Todas</MenuItem>
+
+          <MenuItem value="__SEM_CATEGORIA__">Sem categoria</MenuItem>
+
+          {categorias.map((categoria) => (
+            <MenuItem key={categoria.id} value={String(categoria.id)}>
+              {categoria.nome}
+            </MenuItem>
+          ))}
+        </TextField>
+
+        <TextField
+          select
+          label="Setor"
+          value={setorFiltro}
+          onChange={(event) => {
+            setSetorFiltro(event.target.value);
+            setPage(0);
+          }}
+          fullWidth
+        >
+          <MenuItem value="">Todos</MenuItem>
+
+          <MenuItem value="__SEM_SETOR__">Sem setor</MenuItem>
+
+          <MenuItem value="COZINHA">Cozinha</MenuItem>
+
+          <MenuItem value="PIZZARIA">Pizzaria</MenuItem>
+
+          <MenuItem value="BALCAO">Balcão</MenuItem>
+        </TextField>
+
+        <TextField
+          select
+          label="Venda"
+          value={vendaFiltro}
+          onChange={(event) => {
+            setVendaFiltro(event.target.value);
+            setPage(0);
+          }}
+          fullWidth
+        >
+          <MenuItem value="">Todos</MenuItem>
+
+          <MenuItem value="disponivel">Disponível</MenuItem>
+
+          <MenuItem value="indisponivel">Indisponível</MenuItem>
+        </TextField>
+
+        <TextField
+          select
+          label="Situação"
+          value={situacaoFiltro}
+          onChange={(event) => {
+            setSituacaoFiltro(event.target.value);
+            setPage(0);
+          }}
+          fullWidth
+        >
+          <MenuItem value="">Todos</MenuItem>
+
+          <MenuItem value="ativo">Ativo</MenuItem>
+
+          <MenuItem value="inativo">Inativo</MenuItem>
+        </TextField>
+      </Box>
+
+      {possuiFiltros && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            mb: 2,
+          }}
+        >
+          <Button variant="text" onClick={limparFiltros}>
+            Limpar filtros
+          </Button>
+        </Box>
+      )}
 
       {produtos.length === 0 ? (
-        <EmptyState message="Nenhum produto encontrado." />
+        <EmptyState
+          message={
+            possuiFiltros
+              ? 'Nenhum produto encontrado para os filtros informados.'
+              : 'Nenhum produto encontrado.'
+          }
+        />
       ) : (
         <DataTable
           columns={columns}
-          rows={produtosFiltrados}
-          emptyMessage="Nenhum produto encontrado para a busca."
+          rows={produtos}
+          emptyMessage="Nenhum produto encontrado para os filtros informados."
+          page={page}
+          pageSize={pageSize}
+          totalRows={totalProdutos}
+          onPageChange={setPage}
+          onPageSizeChange={(novoPageSize) => {
+            setPageSize(novoPageSize);
+            setPage(0);
+          }}
         />
       )}
 

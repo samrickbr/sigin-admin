@@ -13,7 +13,28 @@ export interface CategoriaRequest {
   ativo?: boolean;
 }
 
+export type Setor = 'COZINHA' | 'PIZZARIA' | 'BALCAO';
+
 // Produto DTOs
+
+export interface ProdutosFiltro {
+  page: number;
+  size: number;
+  busca?: string;
+  categoriaId?: number;
+  semCategoria?: boolean;
+  setor?: Setor;
+  semSetor?: boolean;
+  disponivelVenda?: boolean;
+  ativo?: boolean;
+}
+export interface ProdutosPage {
+  content: ProdutoResponse[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
 export interface ProdutoRequest {
   nome: string;
   descricao?: string;
@@ -21,6 +42,7 @@ export interface ProdutoRequest {
   precoVenda?: number;
   disponivelVenda?: boolean;
   imagem?: string;
+  setor?: Setor;
 }
 
 export interface ProdutoResponse {
@@ -30,6 +52,7 @@ export interface ProdutoResponse {
   descricao?: string;
   categoriaId?: number;
   categoria?: string;
+  setor?: string;
   precoVenda?: number;
   disponivelVenda?: boolean;
   imagem?: string;

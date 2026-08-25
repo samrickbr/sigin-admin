@@ -11,8 +11,63 @@ import type {
 
 // --- PRODUTOS ---
 
-export async function getProdutos(): Promise<ProdutoResponse[]> {
-  const response = await api.get<ProdutoResponse[]>('/produtos');
+export interface ProdutosPage {
+  content: ProdutoResponse[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
+export interface ProdutosFiltro {
+  page: number;
+  size: number;
+  busca?: string;
+  categoriaId?: number;
+  semCategoria?: boolean;
+  setor?: string;
+  semSetor?: boolean;
+  disponivelVenda?: boolean;
+  ativo?: boolean;
+}
+
+export async function getProdutos(filtros: ProdutosFiltro): Promise<ProdutosPage> {
+  const params = new URLSearchParams();
+
+  params.set('page', String(filtros.page));
+  params.set('size', String(filtros.size));
+
+  if (filtros.busca) {
+    params.set('busca', filtros.busca);
+  }
+
+  if (filtros.categoriaId !== undefined) {
+    params.set('categoriaId', String(filtros.categoriaId));
+  }
+
+  if (filtros.semCategoria) {
+    params.set('semCategoria', 'true');
+  }
+
+  if (filtros.setor) {
+    params.set('setor', filtros.setor);
+  }
+
+  if (filtros.semSetor) {
+    params.set('semSetor', 'true');
+  }
+
+  if (filtros.disponivelVenda !== undefined) {
+    params.set('disponivelVenda', String(filtros.disponivelVenda));
+  }
+
+  if (filtros.ativo !== undefined) {
+    params.set('ativo', String(filtros.ativo));
+  }
+
+  const response = await api.get<ProdutosPage>('/produtos', {
+    params,
+  });
 
   return response.data;
 }

@@ -37,11 +37,16 @@ import { Feedback } from '../../../components/common/Feedback/Feedback';
 
 import { ProdutoMateriaisSection } from '../components/ProdutoMateriaisSection';
 
+import type { Setor } from '../types/produtos';
+
 const produtoSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório.'),
   descricao: z.string().optional(),
   categoriaId: z.number().positive('Selecione uma categoria.'),
   precoVenda: z.number().min(0, 'O preço deve ser maior ou igual a zero.'),
+  setor: z.enum(['COZINHA', 'PIZZARIA', 'BALCAO'], {
+    message: 'Selecione o setor.',
+  }),
   disponivelVenda: z.boolean(),
   imagem: z.string().optional(),
   canaisVendaIds: z.array(z.number()),
@@ -92,6 +97,7 @@ export default function ProdutoFormPage() {
       descricao: '',
       categoriaId: 0,
       precoVenda: 0,
+      setor: 'COZINHA',
       disponivelVenda: true,
       imagem: '',
       canaisVendaIds: [],
@@ -103,24 +109,19 @@ export default function ProdutoFormPage() {
       return;
     }
 
-    reset({
-      nome: produtoQuery.data.nome,
-
-      descricao: produtoQuery.data.descricao ?? '',
-
-      categoriaId: produtoQuery.data.categoriaId ?? 0,
-
-      precoVenda: produtoQuery.data.precoVenda ?? 0,
-
-      disponivelVenda: produtoQuery.data.disponivelVenda ?? true,
-
-      imagem: produtoQuery.data.imagem ?? '',
-
-      canaisVendaIds:
-        produtosCanaisQuery.data
-          ?.filter((item) => item.produtoId === produtoQuery.data.id && item.ativo)
-          .map((item) => item.canalVendaId) ?? [],
-    });
+   reset({
+     nome: produtoQuery.data.nome,
+     descricao: produtoQuery.data.descricao ?? '',
+     categoriaId: produtoQuery.data.categoriaId ?? 0,
+     precoVenda: produtoQuery.data.precoVenda ?? 0,
+     setor: (produtoQuery.data.setor as Setor | undefined) ?? undefined,
+     disponivelVenda: produtoQuery.data.disponivelVenda ?? true,
+     imagem: produtoQuery.data.imagem ?? '',
+     canaisVendaIds:
+       produtosCanaisQuery.data
+         ?.filter((item) => item.produtoId === produtoQuery.data.id && item.ativo)
+         .map((item) => item.canalVendaId) ?? [],
+   });
   }, [produtoQuery.data, produtosCanaisQuery.data, reset]);
 
   const onSubmit = async (data: ProdutoFormData) => {
@@ -139,19 +140,21 @@ export default function ProdutoFormPage() {
             descricao: data.descricao,
             categoriaId: data.categoriaId,
             precoVenda: data.precoVenda,
+            setor: data.setor,
             disponivelVenda: data.disponivelVenda,
             imagem: data.imagem,
           },
         });
       } else {
-        produtoSalvo = await createMutation.mutateAsync({
-          nome: data.nome,
-          descricao: data.descricao,
-          categoriaId: data.categoriaId,
-          precoVenda: data.precoVenda,
-          disponivelVenda: data.disponivelVenda,
-          imagem: data.imagem,
-        });
+       produtoSalvo = await createMutation.mutateAsync({
+         nome: data.nome,
+         descricao: data.descricao,
+         categoriaId: data.categoriaId,
+         precoVenda: data.precoVenda,
+         setor: data.setor,
+         disponivelVenda: data.disponivelVenda,
+         imagem: data.imagem,
+       });
       }
 
       /*
@@ -359,6 +362,25 @@ export default function ProdutoFormPage() {
                   {categoria.nome}
                 </MenuItem>
               ))}
+            </TextField>
+          )}
+        />
+
+        <Controller
+          name="setor"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              select
+              fullWidth
+              label="Setor"
+              error={!!errors.setor}
+              helperText={errors.setor?.message}
+            >
+              <MenuItem value="COZINHA">Cozinha</MenuItem>
+              <MenuItem value="PIZZARIA">Pizzaria</MenuItem>
+              <MenuItem value="BALCAO">Balcão</MenuItem>
             </TextField>
           )}
         />
