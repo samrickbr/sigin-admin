@@ -15,7 +15,6 @@ import {
   LockOutlined,
   Inventory2Outlined,
   CategoryOutlined,
-  PointOfSaleOutlined,
   ReceiptLongOutlined,
   BuildOutlined,
   LocationOnOutlined,
@@ -78,11 +77,13 @@ const menuGroups = [
         path: '/categorias',
         icon: CategoryOutlined,
       },
+      /*
       {
         label: 'Canais de Venda',
         path: '/canais-venda',
         icon: PointOfSaleOutlined,
       },
+      */
       {
         label: 'Materiais',
         path: '/materiais',

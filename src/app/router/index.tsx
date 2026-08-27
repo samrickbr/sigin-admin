@@ -25,9 +25,6 @@ import ProdutoFormPage from '../../modules/produtos/pages/ProdutoFormPage';
 import CategoriasListPage from '../../modules/categorias/pages/CategoriasListPage';
 import CategoriaFormPage from '../../modules/categorias/pages/CategoriaFormPage';
 
-import CanaisVendaListPage from '../../modules/canais-venda/pages/CanaisVendaListPage';
-import CanalVendaFormPage from '../../modules/canais-venda/pages/CanalVendaFormPage';
-
 import MateriaisListPage from '../../modules/materiais/pages/MateriaisListPage';
 import MaterialFormPage from '../../modules/materiais/pages/MateriaisFormPage';
 
@@ -86,9 +83,11 @@ export function AppRouter() {
           <Route path="/categorias/:id" element={<CategoriaFormPage />} />
 
           {/* CANAIS DE VENDA */}
+          {/*
           <Route path="/canais-venda" element={<CanaisVendaListPage />} />
           <Route path="/canais-venda/novo" element={<CanalVendaFormPage />} />
           <Route path="/canais-venda/:id" element={<CanalVendaFormPage />} />
+          */}
 
           {/* PRODUTOS */}
 
@@ -119,7 +118,6 @@ export function AppRouter() {
           <Route path="/tipos-pessoa" element={<TiposPessoaListPage />} />
           <Route path="/tipos-pessoa/novo" element={<TipoPessoaFormPage />} />
           <Route path="/tipos-pessoa/:id/editar" element={<TipoPessoaFormPage />} />
-
         </Route>
       </Route>
     </Routes>
